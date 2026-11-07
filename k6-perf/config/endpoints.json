@@ -1,0 +1,18 @@
+[
+  { "name": "mobile.devices-config",   "group": "mobile", "method": "POST", "path": "/api/mobile/devices/config",    "weight": 415, "body": { "deviceId": "{{deviceId}}", "timezone": "America/Chicago", "appVersion": 289, "requestId": "{{uuid}}" } },
+  { "name": "mobile.members-get-detail","group": "mobile", "method": "POST", "path": "/api/mobile/members/get-detail", "weight": 140, "body": { "deviceId": "{{deviceId}}", "timezone": "America/Chicago", "appVersion": 289, "requestId": "{{uuid}}", "id": "{{memberId}}" } },
+  { "name": "mobile.members-get-data", "group": "mobile", "method": "POST", "path": "/api/mobile/members/get-data",   "weight": 116, "body": { "deviceId": "{{deviceId}}", "timezone": "America/Chicago", "appVersion": 289, "requestId": "{{uuid}}", "sequence": "0" } },
+  { "name": "mobile.version-check-new","group": "mobile", "method": "POST", "path": "/api/mobile/version/check-new",  "weight": 98,  "body": { "deviceId": "{{deviceId}}", "timezone": "America/Chicago", "appVersion": 289, "requestId": "{{uuid}}" } },
+  { "name": "mobile.members-pin-data", "group": "mobile", "method": "POST", "path": "/api/mobile/members/pin-data",   "weight": 15,  "body": { "deviceId": "{{deviceId}}", "timezone": "America/Chicago", "appVersion": 289, "requestId": "{{uuid}}" } },
+  { "name": "mobile.tickets",          "group": "mobile", "method": "POST", "path": "/api/mobile/tickets",            "weight": 13,  "body": { "deviceId": "{{deviceId}}", "timezone": "America/Chicago", "appVersion": 289, "requestId": "{{uuid}}", "name": "{{externalId}}", "fromDate": "{{todayMDY}}", "toDate": "{{todayMDY}}", "shift": "", "staffShift": "", "page": 1, "type": "today" } },
+
+  { "name": "web.tickets",             "group": "web", "method": "GET", "path": "/api/v1/tickets?keyword=&storeId={{storeId}}&page=1&pageSize=100&sortBy=%5B%5D", "weight": 13 },
+  { "name": "web.accounts-getAllStaff","group": "web", "method": "GET", "path": "/api/v1/accounts/getAllStaff?pageSize=999999&storeId={{storeId}}", "weight": 10 },
+  { "name": "web.stores",              "group": "web", "method": "GET", "path": "/api/v1/stores?page=1&pageSize=9999&sortBy=%5B%5D&keyword=", "weight": 8 },
+  { "name": "web.levels",              "group": "web", "method": "GET", "path": "/api/v1/levels?page=1&pageSize=999999999&sortBy=%5B%5D&storeId={{storeId}}", "weight": 7 },
+  { "name": "web.notifications",       "group": "web", "method": "GET", "path": "/api/v1/notifications?pageSize=5&page=1", "weight": 7 },
+  { "name": "web.dashboard",           "group": "web", "method": "GET", "path": "/api/v1/dashboard?accountId={{accountId}}&accountType=store&storeId={{storeId}}&type=today", "weight": 7 },
+  { "name": "web.members",             "group": "web", "method": "GET", "path": "/api/v1/members?page=1&pageSize=999999999&sortBy=%5B%5D&storeId={{storeId}}", "weight": 5 },
+  { "name": "web.fixed-costs",         "group": "web", "method": "GET", "path": "/api/v1/fixed-costs?store={{storeId}}&date={{todayIso}}&page=1&pageSize=100&sortBy=%5B%5D&storeId={{storeId}}", "weight": 5 },
+  { "name": "web.baccarat-players",    "group": "web", "method": "GET", "path": "/api/v1/baccarat-players?store={{storeId}}&page=1&pageSize=100&sortBy=%5B%5D&range=daily", "weight": 4 }
+]

@@ -1,0 +1,15 @@
+{
+  "smoke":  { "label": "Smoke - 1 req/s, 30s, check script & auth", "startRate": 1, "stages": [{ "target": 1, "duration": "30s" }] },
+  "load":   { "label": "Load - real peak 12 req/s, hold 5m", "startRate": 1, "stages": [{ "target": 12, "duration": "1m" }, { "target": 12, "duration": "5m" }, { "target": 0, "duration": "30s" }] },
+  "stress": { "label": "Stress - 12 > 25 > 50 > 100 req/s, 2m each", "startRate": 5, "stages": [
+    { "target": 12, "duration": "1m" }, { "target": 12, "duration": "2m" },
+    { "target": 25, "duration": "30s" }, { "target": 25, "duration": "2m" },
+    { "target": 50, "duration": "30s" }, { "target": 50, "duration": "2m" },
+    { "target": 100, "duration": "30s" }, { "target": 100, "duration": "2m" },
+    { "target": 0, "duration": "30s" }] },
+  "spike":  { "label": "Spike - 5 > 60 req/s in 10s, hold 1m", "startRate": 5, "stages": [
+    { "target": 5, "duration": "1m" }, { "target": 60, "duration": "10s" }, { "target": 60, "duration": "1m" },
+    { "target": 5, "duration": "10s" }, { "target": 5, "duration": "1m" }] },
+  "soak":   { "label": "Soak - 12 req/s for 1h (token lives 15 days, no refresh needed)", "startRate": 1, "stages": [
+    { "target": 12, "duration": "2m" }, { "target": 12, "duration": "1h" }, { "target": 0, "duration": "1m" }] }
+}
