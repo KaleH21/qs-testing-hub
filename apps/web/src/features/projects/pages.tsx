@@ -256,11 +256,11 @@ function ArchiveButton({ project }: { project: Project }) {
 }
 
 // ---- Môi trường ----
-function EnvironmentsTab({ projectId }: { projectId: string }) {
+function EnvironmentsTab({ projectId }: { projectId: number }) {
   const { t } = useTranslation();
   const q = useEnvironmentsQuery(projectId);
   const canManage = useCan('project.environments.manage', projectId);
-  const [selected, setSelected] = useState<string | null>(null);
+  const [selected, setSelected] = useState<number | null>(null);
   return (
     <div className="space-y-4">
       {canManage && <CreateEnvironmentForm projectId={projectId} />}
@@ -282,7 +282,7 @@ function EnvironmentsTab({ projectId }: { projectId: string }) {
   );
 }
 
-function CreateEnvironmentForm({ projectId }: { projectId: string }) {
+function CreateEnvironmentForm({ projectId }: { projectId: number }) {
   const { t } = useTranslation();
   const [create, res] = useCreateEnvironmentMutation();
   const canProd = useCan('project.environments.production', projectId);
@@ -477,9 +477,9 @@ function VariablesEditor({ env }: { env: Environment }) {
                 {v.secretId !== undefined ? (
                   <NativeSelect
                     aria-label={t('env.varSecret')}
-                    value={v.secretId}
+                    value={v.secretId || ''}
                     disabled={!canManage}
-                    onChange={(e) => set(i, { key: v.key, secretId: e.target.value })}
+                    onChange={(e) => set(i, { key: v.key, secretId: Number(e.target.value) })}
                   >
                     <option value="">{t('env.chooseSecret')}</option>
                     {secrets.data?.data.map((s) => (
@@ -520,7 +520,7 @@ function VariablesEditor({ env }: { env: Environment }) {
                 <Button
                   size="sm"
                   variant="outline"
-                  onClick={() => setDraft([...rows, { key: '', secretId: '' }])}
+                  onClick={() => setDraft([...rows, { key: '', secretId: 0 }])}
                 >
                   {t('env.addSecretVar')}
                 </Button>
@@ -637,7 +637,7 @@ function CredentialsEditor({ env }: { env: Environment }) {
 }
 
 // ---- Thành viên dự án ----
-function MembersTab({ projectId }: { projectId: string }) {
+function MembersTab({ projectId }: { projectId: number }) {
   const { t } = useTranslation();
   const org = useCurrentOrg()!;
   const q = useProjectMembersQuery(projectId);
@@ -687,7 +687,7 @@ function MembersTab({ projectId }: { projectId: string }) {
           <Button
             disabled={!userId}
             onClick={async () => {
-              const r = await add({ projectId, userId, role });
+              const r = await add({ projectId, userId: Number(userId), role });
               if (!('error' in r)) setUserId('');
             }}
           >

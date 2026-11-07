@@ -10,7 +10,7 @@ export interface EnvSwitch {
   kind: EnvironmentKind;
   testingEnabled: boolean;
   testingDisabledReason?: string | null;
-  testingToggledBy?: string | null;
+  testingToggledBy?: number | null;
   testingToggledAt?: Date | null;
 }
 
@@ -19,7 +19,7 @@ export interface TestingBlock {
   blockedBy: 'ORGANIZATION' | 'ENVIRONMENT';
   message: string;
   reason?: string | null;
-  toggledBy?: string | null;
+  toggledBy?: number | null;
   toggledAt?: Date | null;
 }
 

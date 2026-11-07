@@ -1,0 +1,43 @@
+$ vitest run
+
+ RUN  v5.1.0 C:/QS/Tools/QA_Testing_Hub/apps/api
+
+ ❯ src/test/permissions.int.test.ts (61 tests | 1 failed) 5258ms
+   ❯ Ma trận quyền (docs/09 §2) (61)
+     × PUT /api/v1/secrets/:id 94ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/test/permissions.int.test.ts > Ma trận quyền (docs/09 §2) > PUT /api/v1/secrets/:id
+AssertionError: expected [ …(3) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "OWNER: mong được phép, nhận 404 {\"code\":\"NOT_FOUND\",\"message\":\"Secret không tồn tại\",\"requestId\":\"aae082df-d9d2-41fc-832f-f8ae315d52e8\"}",
++   "ADMIN: mong được phép, nhận 404 {\"code\":\"NOT_FOUND\",\"message\":\"Secret không tồn tại\",\"requestId\":\"9c81dce1-fe3a-461d-a476-4be8213ef8fc\"}",
++   "QA_LEAD: mong được phép, nhận 404 {\"code\":\"NOT_FOUND\",\"message\":\"Secret không tồn tại\",\"requestId\":\"865ea729-4fdc-4e0f-b28d-49592bf080e0\"}",
++ ]
+
+ ❯ src/test/permissions.int.test.ts:72:24
+     70|         }
+     71|       }
+     72|       expect(failures).toEqual([]);
+       |                        ^
+     73|     }, 60_000);
+     74|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 8 passed (9)
+      Tests  1 failed | 108 passed (109)
+   Start at  15:12:43
+   Duration  15.42s (tests 57%, import 38%, transform 5%)
+
+    Isolate  9 workers spawned · ~126ms startup each (spawn + environment, per file)
+             at least ~1.01s faster with isolate: false — reuses workers across files instead of one per file
+
+[ELIFECYCLE] Test failed. See above for more details.

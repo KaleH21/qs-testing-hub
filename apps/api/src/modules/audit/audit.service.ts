@@ -6,21 +6,21 @@ import { DB, type Db } from '../../infra.module';
 
 export interface AuditEntry {
   actor: Actor | null;
-  organizationId: string | null;
+  organizationId: number | null;
   action: string;
   entityType: string;
-  entityId?: string | null;
+  entityId?: number | null;
   metadata?: Record<string, unknown>;
 }
 
 export interface AuditFilter {
-  actor?: string;
+  actor?: number;
   action?: string;
   entityType?: string;
-  entityId?: string;
+  entityId?: number;
   from?: Date;
   to?: Date;
-  cursor?: string;
+  cursor?: number;
   limit: number;
 }
 
@@ -44,7 +44,7 @@ export class AuditService {
     });
   }
 
-  async list(orgId: string, f: AuditFilter) {
+  async list(orgId: number, f: AuditFilter) {
     const where: SQL[] = [eq(auditLogs.organizationId, orgId)];
     if (f.actor) where.push(eq(auditLogs.actorUserId, f.actor));
     if (f.action) where.push(eq(auditLogs.action, f.action));
@@ -52,7 +52,7 @@ export class AuditService {
     if (f.entityId) where.push(eq(auditLogs.entityId, f.entityId));
     if (f.from) where.push(gte(auditLogs.createdAt, f.from));
     if (f.to) where.push(lt(auditLogs.createdAt, f.to));
-    if (f.cursor) where.push(lt(auditLogs.id, f.cursor)); // UUID v7 tăng theo thời gian
+    if (f.cursor) where.push(lt(auditLogs.id, f.cursor)); // id tự tăng: id nhỏ hơn = cũ hơn
     const rows = await this.db
       .select()
       .from(auditLogs)

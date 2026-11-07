@@ -5,7 +5,7 @@ import {
   Get,
   HttpCode,
   Param,
-  ParseUUIDPipe,
+  ParseIntPipe,
   Patch,
   Post,
   Put,
@@ -24,7 +24,7 @@ import { CurrentActor, type Actor } from '../../common/actor';
 import { ZodPipe } from '../../common/zod.pipe';
 import { EnvironmentsService } from './environments.service';
 
-const uuid = new ParseUUIDPipe();
+const int = new ParseIntPipe();
 
 @ApiTags('environments')
 @Controller()
@@ -32,28 +32,28 @@ export class EnvironmentsController {
   constructor(private readonly envs: EnvironmentsService) {}
 
   @Get('projects/:projectId/environments')
-  list(@CurrentActor() actor: Actor, @Param('projectId', uuid) projectId: string) {
+  list(@CurrentActor() actor: Actor, @Param('projectId', int) projectId: number) {
     return this.envs.list(actor, projectId);
   }
 
   @Post('projects/:projectId/environments')
   create(
     @CurrentActor() actor: Actor,
-    @Param('projectId', uuid) projectId: string,
+    @Param('projectId', int) projectId: number,
     @Body(new ZodPipe(createEnvironmentSchema)) dto: z.infer<typeof createEnvironmentSchema>,
   ) {
     return this.envs.create(actor, projectId, dto);
   }
 
   @Get('environments/:envId')
-  get(@CurrentActor() actor: Actor, @Param('envId', uuid) envId: string) {
+  get(@CurrentActor() actor: Actor, @Param('envId', int) envId: number) {
     return this.envs.get(actor, envId);
   }
 
   @Patch('environments/:envId')
   update(
     @CurrentActor() actor: Actor,
-    @Param('envId', uuid) envId: string,
+    @Param('envId', int) envId: number,
     @Body(new ZodPipe(updateEnvironmentSchema)) dto: z.infer<typeof updateEnvironmentSchema>,
   ) {
     return this.envs.update(actor, envId, dto);
@@ -61,42 +61,42 @@ export class EnvironmentsController {
 
   @Delete('environments/:envId')
   @HttpCode(204)
-  async remove(@CurrentActor() actor: Actor, @Param('envId', uuid) envId: string) {
+  async remove(@CurrentActor() actor: Actor, @Param('envId', int) envId: number) {
     await this.envs.remove(actor, envId);
   }
 
   @Patch('environments/:envId/testing')
   setTesting(
     @CurrentActor() actor: Actor,
-    @Param('envId', uuid) envId: string,
+    @Param('envId', int) envId: number,
     @Body(new ZodPipe(toggleTestingSchema)) dto: z.infer<typeof toggleTestingSchema>,
   ) {
     return this.envs.setTesting(actor, envId, dto);
   }
 
   @Get('environments/:envId/variables')
-  variables(@CurrentActor() actor: Actor, @Param('envId', uuid) envId: string) {
+  variables(@CurrentActor() actor: Actor, @Param('envId', int) envId: number) {
     return this.envs.variables(actor, envId);
   }
 
   @Put('environments/:envId/variables')
   replaceVariables(
     @CurrentActor() actor: Actor,
-    @Param('envId', uuid) envId: string,
+    @Param('envId', int) envId: number,
     @Body(new ZodPipe(environmentVariablesSchema)) dto: z.infer<typeof environmentVariablesSchema>,
   ) {
     return this.envs.replaceVariables(actor, envId, dto);
   }
 
   @Get('environments/:envId/credentials')
-  credentials(@CurrentActor() actor: Actor, @Param('envId', uuid) envId: string) {
+  credentials(@CurrentActor() actor: Actor, @Param('envId', int) envId: number) {
     return this.envs.credentials(actor, envId);
   }
 
   @Post('environments/:envId/credentials')
   createCredential(
     @CurrentActor() actor: Actor,
-    @Param('envId', uuid) envId: string,
+    @Param('envId', int) envId: number,
     @Body(new ZodPipe(createCredentialSchema)) dto: z.infer<typeof createCredentialSchema>,
   ) {
     return this.envs.createCredential(actor, envId, dto);
@@ -105,8 +105,8 @@ export class EnvironmentsController {
   @Patch('environments/:envId/credentials/:id')
   updateCredential(
     @CurrentActor() actor: Actor,
-    @Param('envId', uuid) envId: string,
-    @Param('id', uuid) id: string,
+    @Param('envId', int) envId: number,
+    @Param('id', int) id: number,
     @Body(new ZodPipe(updateCredentialSchema)) dto: z.infer<typeof updateCredentialSchema>,
   ) {
     return this.envs.updateCredential(actor, envId, id, dto);
@@ -116,8 +116,8 @@ export class EnvironmentsController {
   @HttpCode(204)
   async removeCredential(
     @CurrentActor() actor: Actor,
-    @Param('envId', uuid) envId: string,
-    @Param('id', uuid) id: string,
+    @Param('envId', int) envId: number,
+    @Param('id', int) id: number,
   ) {
     await this.envs.removeCredential(actor, envId, id);
   }

@@ -137,7 +137,7 @@ describeDb('Auth (docs/09 §3)', () => {
 
   it('/auth/me trả tổ chức, role và role theo dự án (cho useCan ở frontend)', async () => {
     const me = await h.call('QA_LEAD', 'GET', '/api/v1/auth/me').expect(200);
-    const org = me.body.organizations.find((o: { id: string }) => o.id === h.orgId);
+    const org = me.body.organizations.find((o: { id: number }) => o.id === h.orgId);
     expect(org.role).toBe('QA_LEAD');
     expect(org.projects).toContainEqual({ projectId: h.projectId, role: 'QA_LEAD' });
   });

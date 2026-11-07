@@ -31,7 +31,7 @@ export class ServiceAccountsService {
     private readonly audit: AuditService,
   ) {}
 
-  private async assertProjectsInOrg(orgId: string, ids: string[] | null | undefined) {
+  private async assertProjectsInOrg(orgId: number, ids: number[] | null | undefined) {
     if (!ids?.length) return;
     const rows = await this.db
       .select({ id: projects.id })
@@ -42,7 +42,7 @@ export class ServiceAccountsService {
     }
   }
 
-  private async load(orgId: string, id: string) {
+  private async load(orgId: number, id: number) {
     const [s] = await this.db
       .select()
       .from(serviceAccounts)
@@ -51,7 +51,7 @@ export class ServiceAccountsService {
     return s;
   }
 
-  async list(actor: Actor, org?: string) {
+  async list(actor: Actor, org?: number) {
     const { orgId } = await this.access.org(actor, 'org.serviceAccounts', org);
     const rows = await this.db
       .select()
@@ -62,8 +62,8 @@ export class ServiceAccountsService {
 
   async create(
     actor: Actor,
-    org: string | undefined,
-    dto: { name: string; scopes: string[]; projectIds: string[] | null; expiresInDays: number },
+    org: number | undefined,
+    dto: { name: string; scopes: string[]; projectIds: number[] | null; expiresInDays: number },
   ) {
     const { orgId } = await this.access.org(actor, 'org.serviceAccounts', org);
     await this.assertProjectsInOrg(orgId, dto.projectIds);
@@ -94,9 +94,9 @@ export class ServiceAccountsService {
 
   async update(
     actor: Actor,
-    org: string | undefined,
-    id: string,
-    dto: { name?: string; scopes?: string[]; projectIds?: string[] | null },
+    org: number | undefined,
+    id: number,
+    dto: { name?: string; scopes?: string[]; projectIds?: number[] | null },
   ) {
     const { orgId } = await this.access.org(actor, 'org.serviceAccounts', org);
     const before = await this.load(orgId, id);
@@ -121,7 +121,7 @@ export class ServiceAccountsService {
   }
 
   /** Token cũ hết hiệu lực ngay (graceMinutes mặc định 0) */
-  async rotate(actor: Actor, org: string | undefined, id: string) {
+  async rotate(actor: Actor, org: number | undefined, id: number) {
     const { orgId } = await this.access.org(actor, 'org.serviceAccounts', org);
     await this.load(orgId, id);
     const t = newServiceAccountToken();
@@ -140,7 +140,7 @@ export class ServiceAccountsService {
     return { ...view(s!), token: t.token };
   }
 
-  async revoke(actor: Actor, org: string | undefined, id: string) {
+  async revoke(actor: Actor, org: number | undefined, id: number) {
     const { orgId } = await this.access.org(actor, 'org.serviceAccounts', org);
     await this.load(orgId, id);
     await this.db

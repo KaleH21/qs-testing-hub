@@ -95,7 +95,7 @@ export class TargetsService {
     }
   }
 
-  private async load(orgId: string, id: string) {
+  private async load(orgId: number, id: number) {
     const [t] = await this.db
       .select()
       .from(targetHosts)
@@ -104,7 +104,7 @@ export class TargetsService {
     return t;
   }
 
-  async list(actor: Actor, orgHeader?: string) {
+  async list(actor: Actor, orgHeader?: number) {
     const { orgId } = await this.access.org(actor, 'org.targets.read', orgHeader);
     const rows = await this.db
       .select()
@@ -115,10 +115,10 @@ export class TargetsService {
 
   async create(
     actor: Actor,
-    orgHeader: string | undefined,
+    orgHeader: number | undefined,
     dto: {
       hostPattern: string;
-      projectId?: string;
+      projectId?: number;
       verificationMethod: VerificationMethod;
       allowPrivateNetwork: boolean;
       allowedCidrs: string[];
@@ -189,7 +189,7 @@ export class TargetsService {
     return this.view(updated!);
   }
 
-  async verify(actor: Actor, orgHeader: string | undefined, id: string) {
+  async verify(actor: Actor, orgHeader: number | undefined, id: number) {
     const { orgId } = await this.access.org(actor, 'org.targets.manage', orgHeader);
     const t = await this.load(orgId, id);
     if (t.verificationMethod === 'ADMIN_APPROVAL')
@@ -209,7 +209,7 @@ export class TargetsService {
     return this.markVerified(actor, t, 'target.verify');
   }
 
-  async approve(actor: Actor, orgHeader: string | undefined, id: string, reason: string) {
+  async approve(actor: Actor, orgHeader: number | undefined, id: number, reason: string) {
     const { orgId } = await this.access.org(actor, 'org.targets.manage', orgHeader);
     const t = await this.load(orgId, id);
     if (t.verificationMethod !== 'ADMIN_APPROVAL') {
@@ -218,7 +218,7 @@ export class TargetsService {
     return this.markVerified(actor, t, 'target.approve', { reason });
   }
 
-  async remove(actor: Actor, orgHeader: string | undefined, id: string) {
+  async remove(actor: Actor, orgHeader: number | undefined, id: number) {
     const { orgId } = await this.access.org(actor, 'org.targets.manage', orgHeader);
     const t = await this.load(orgId, id);
     await this.db.delete(targetHosts).where(eq(targetHosts.id, t.id));

@@ -38,10 +38,10 @@ export type ActorName = (typeof ACTORS)[number];
 
 export interface Harness {
   app: INestApplication;
-  orgId: string;
-  otherOrgId: string;
-  projectId: string;
-  users: Record<Exclude<ActorName, 'SA'>, string>;
+  orgId: number;
+  otherOrgId: number;
+  projectId: number;
+  users: Record<Exclude<ActorName, 'SA'>, number>;
   tokens: Record<ActorName, string>;
   /** Gọi API với vai trò; header X-Organization-Id mặc định là org chính */
   call(
@@ -51,9 +51,9 @@ export interface Harness {
     body?: unknown,
   ): request.Test;
   owner(method: string, path: string, body?: unknown): request.Test;
-  issueToken(userId: string): Promise<string>;
+  issueToken(userId: number): Promise<string>;
   freshUserToken(): Promise<string>;
-  freshProject(): Promise<string>;
+  freshProject(): Promise<number>;
   sql: postgres.Sql;
   close(): Promise<void>;
 }
@@ -128,7 +128,7 @@ export async function createHarness(): Promise<Harness> {
     .insert(schema.organizationMembers)
     .values({ organizationId: otherOrgId, userId: users.OTHER_ORG, role: 'OWNER' });
 
-  const addProjectMembers = async (projectId: string) => {
+  const addProjectMembers = async (projectId: number) => {
     for (const [role, pr] of Object.entries(PROJECT_ROLE)) {
       await db
         .insert(schema.projectMembers)
@@ -141,7 +141,7 @@ export async function createHarness(): Promise<Harness> {
     .returning();
   await addProjectMembers(project!.id);
 
-  const issueToken = async (userId: string) =>
+  const issueToken = async (userId: number) =>
     (await auth.issueSession(db, userId, info)).accessToken;
   const tokens = {} as Harness['tokens'];
   for (const [name, id] of Object.entries(users)) tokens[name as ActorName] = await issueToken(id);

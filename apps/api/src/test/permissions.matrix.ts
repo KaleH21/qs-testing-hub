@@ -68,7 +68,7 @@ const member = async (h: Harness) =>
       }),
       'member',
     )
-  ).userId as string;
+  ).userId as number;
 
 const sa = async (h: Harness) =>
   (

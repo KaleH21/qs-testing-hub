@@ -13,7 +13,7 @@ import {
   refreshTokens,
   users,
 } from '../../db/schema';
-import { uuidv7 } from '../../db/uuid';
+import { randomUUID } from 'node:crypto';
 import { DB, type Db } from '../../infra.module';
 import { AuditService } from '../audit/audit.service';
 import { JWT_KEYS } from './auth.constants';
@@ -75,9 +75,9 @@ export class AuthService {
 
   async issueSession(
     tx: Pick<Db, 'insert'>,
-    userId: string,
+    userId: number,
     info: ReqInfo,
-    familyId = uuidv7(),
+    familyId: string = randomUUID(), // mã phiên ngẫu nhiên, không phải ID bản ghi
   ): Promise<IssuedSession> {
     const refreshToken = randomToken(32); // 256-bit
     const refreshExpiresAt = new Date(Date.now() + this.env.REFRESH_TOKEN_TTL_DAYS * 86_400_000);
@@ -255,7 +255,7 @@ export class AuthService {
       .where(and(eq(refreshTokens.familyId, familyId), isNull(refreshTokens.revokedAt)));
   }
 
-  revokeAllForUser(userId: string, tx: Pick<Db, 'update'> = this.db, exceptFamily?: string) {
+  revokeAllForUser(userId: number, tx: Pick<Db, 'update'> = this.db, exceptFamily?: string) {
     const where = [eq(refreshTokens.userId, userId), isNull(refreshTokens.revokedAt)];
     if (exceptFamily) where.push(ne(refreshTokens.familyId, exceptFamily));
     return tx

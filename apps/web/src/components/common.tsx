@@ -115,7 +115,7 @@ export function Field({
   hint,
   children,
 }: {
-  id: string;
+  id: string; // id thẻ HTML, không phải id bản ghi
   label: string;
   error?: string;
   hint?: string;

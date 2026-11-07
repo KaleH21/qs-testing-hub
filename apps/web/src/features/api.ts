@@ -9,17 +9,17 @@ import { baseApi } from '@/lib/api';
 
 // Kiểu dữ liệu trả về từ API Phase 1 (docs/05 §3.1–3.3)
 export interface Me {
-  user: { id: string; email: string; displayName: string; locale: 'vi' | 'en'; timezone: string };
+  user: { id: number; email: string; displayName: string; locale: 'vi' | 'en'; timezone: string };
   organizations: Array<{
-    id: string;
+    id: number;
     name: string;
     slug: string;
     role: OrgRole;
-    projects: Array<{ projectId: string; role: ProjectRole }>;
+    projects: Array<{ projectId: number; role: ProjectRole }>;
   }>;
 }
 export interface Organization {
-  id: string;
+  id: number;
   name: string;
   defaultTimezone: string;
   productionTestingEnabled: boolean;
@@ -28,25 +28,25 @@ export interface Organization {
   localNetwork: { allowedCidrs: string[]; allowLoopback: boolean };
 }
 export interface Member {
-  userId: string;
+  userId: number;
   email: string;
   displayName: string;
   role: OrgRole;
   status?: string;
 }
 export interface ServiceAccount {
-  id: string;
+  id: number;
   name: string;
   tokenPrefix: string;
   scopes: ServiceAccountScope[];
-  projectIds: string[] | null;
+  projectIds: number[] | null;
   lastUsedAt: string | null;
   expiresAt: string | null;
   revokedAt: string | null;
   token?: string;
 }
 export interface Project {
-  id: string;
+  id: number;
   key: string;
   name: string;
   description: string | null;
@@ -54,7 +54,7 @@ export interface Project {
   myRole?: OrgRole;
 }
 export interface ProjectMember {
-  userId: string;
+  userId: number;
   email: string;
   displayName: string;
   role: ProjectRole;
@@ -66,8 +66,8 @@ export interface TestingBlock {
   reason?: string | null;
 }
 export interface Environment {
-  id: string;
-  projectId: string;
+  id: number;
+  projectId: number;
   name: string;
   kind: EnvironmentKind;
   webBaseUrl: string | null;
@@ -78,20 +78,20 @@ export interface Environment {
   testingToggledAt: string | null;
   testingBlock: TestingBlock | null;
 }
-export type Variable = { key: string; value?: string | null; secretId?: string; masked?: boolean };
+export type Variable = { key: string; value?: string | null; secretId?: number; masked?: boolean };
 export interface Credential {
-  id: string;
+  id: number;
   roleName: string;
   username: string;
 }
 export interface Secret {
-  id: string;
+  id: number;
   name: string;
-  projectId: string | null;
+  projectId: number | null;
   createdAt: string;
 }
 export interface Target {
-  id: string;
+  id: number;
   hostPattern: string;
   verificationMethod: VerificationMethod;
   allowPrivateNetwork: boolean;
@@ -106,11 +106,11 @@ export interface Target {
   };
 }
 export interface AuditEntry {
-  id: string;
+  id: number;
   action: string;
   entityType: string;
-  entityId: string | null;
-  actorUserId: string | null;
+  entityId: number | null;
+  actorUserId: number | null;
   metadata: Record<string, unknown>;
   ip: string | null;
   createdAt: string;
@@ -141,15 +141,15 @@ export const api = baseApi.injectEndpoints({
     }),
 
     // ---- Tổ chức ----
-    organization: b.query<Organization, string>({
+    organization: b.query<Organization, number>({
       query: (id) => `organizations/${id}`,
       providesTags: ['Org'],
     }),
-    updateOrganization: b.mutation<Organization, { id: string } & Body>({
+    updateOrganization: b.mutation<Organization, { id: number } & Body>({
       query: ({ id, ...body }) => ({ url: `organizations/${id}`, method: 'PATCH', body }),
       invalidatesTags: ['Org', 'Me', 'Audit'],
     }),
-    testingSwitches: b.mutation<Organization, { id: string } & Body>({
+    testingSwitches: b.mutation<Organization, { id: number } & Body>({
       query: ({ id, ...body }) => ({
         url: `organizations/${id}/testing-switches`,
         method: 'PATCH',
@@ -157,7 +157,7 @@ export const api = baseApi.injectEndpoints({
       }),
       invalidatesTags: ['Org', 'Environment', 'Audit'],
     }),
-    localNetwork: b.mutation<Organization, { id: string } & Body>({
+    localNetwork: b.mutation<Organization, { id: number } & Body>({
       query: ({ id, ...body }) => ({
         url: `organizations/${id}/local-network`,
         method: 'PUT',
@@ -165,11 +165,11 @@ export const api = baseApi.injectEndpoints({
       }),
       invalidatesTags: ['Org', 'Audit'],
     }),
-    members: b.query<List<Member>, string>({
+    members: b.query<List<Member>, number>({
       query: (id) => `organizations/${id}/members`,
       providesTags: ['Member'],
     }),
-    addMember: b.mutation<Member & { temporaryPassword: string | null }, { orgId: string } & Body>({
+    addMember: b.mutation<Member & { temporaryPassword: string | null }, { orgId: number } & Body>({
       query: ({ orgId, ...body }) => ({
         url: `organizations/${orgId}/members`,
         method: 'POST',
@@ -177,7 +177,7 @@ export const api = baseApi.injectEndpoints({
       }),
       invalidatesTags: ['Member', 'Audit'],
     }),
-    updateMember: b.mutation<void, { orgId: string; userId: string; role: OrgRole }>({
+    updateMember: b.mutation<void, { orgId: number; userId: number; role: OrgRole }>({
       query: ({ orgId, userId, role }) => ({
         url: `organizations/${orgId}/members/${userId}`,
         method: 'PATCH',
@@ -185,7 +185,7 @@ export const api = baseApi.injectEndpoints({
       }),
       invalidatesTags: ['Member', 'Audit'],
     }),
-    removeMember: b.mutation<void, { orgId: string; userId: string }>({
+    removeMember: b.mutation<void, { orgId: number; userId: number }>({
       query: ({ orgId, userId }) => ({
         url: `organizations/${orgId}/members/${userId}`,
         method: 'DELETE',
@@ -202,11 +202,11 @@ export const api = baseApi.injectEndpoints({
       query: (body) => ({ url: 'service-accounts', method: 'POST', body }),
       invalidatesTags: ['ServiceAccount', 'Audit'],
     }),
-    rotateServiceAccount: b.mutation<ServiceAccount, string>({
+    rotateServiceAccount: b.mutation<ServiceAccount, number>({
       query: (id) => ({ url: `service-accounts/${id}/rotate`, method: 'POST' }),
       invalidatesTags: ['ServiceAccount', 'Audit'],
     }),
-    revokeServiceAccount: b.mutation<void, string>({
+    revokeServiceAccount: b.mutation<void, number>({
       query: (id) => ({ url: `service-accounts/${id}`, method: 'DELETE' }),
       invalidatesTags: ['ServiceAccount', 'Audit'],
     }),
@@ -216,7 +216,7 @@ export const api = baseApi.injectEndpoints({
       query: (a) => ({ url: 'projects', params: a?.archived ? { archived: 'true' } : undefined }),
       providesTags: ['Project'],
     }),
-    project: b.query<Project, string>({
+    project: b.query<Project, number>({
       query: (id) => `projects/${id}`,
       providesTags: ['Project'],
     }),
@@ -224,22 +224,22 @@ export const api = baseApi.injectEndpoints({
       query: (body) => ({ url: 'projects', method: 'POST', body }),
       invalidatesTags: ['Project', 'Audit'],
     }),
-    updateProject: b.mutation<Project, { id: string } & Body>({
+    updateProject: b.mutation<Project, { id: number } & Body>({
       query: ({ id, ...body }) => ({ url: `projects/${id}`, method: 'PATCH', body }),
       invalidatesTags: ['Project', 'Audit'],
     }),
-    archiveProject: b.mutation<Project, { id: string; archived: boolean }>({
+    archiveProject: b.mutation<Project, { id: number; archived: boolean }>({
       query: ({ id, archived }) => ({
         url: `projects/${id}/${archived ? 'archive' : 'unarchive'}`,
         method: 'POST',
       }),
       invalidatesTags: ['Project', 'Audit'],
     }),
-    projectMembers: b.query<List<ProjectMember>, string>({
+    projectMembers: b.query<List<ProjectMember>, number>({
       query: (id) => `projects/${id}/members`,
       providesTags: ['ProjectMember'],
     }),
-    addProjectMember: b.mutation<void, { projectId: string; userId: string; role: ProjectRole }>({
+    addProjectMember: b.mutation<void, { projectId: number; userId: number; role: ProjectRole }>({
       query: ({ projectId, ...body }) => ({
         url: `projects/${projectId}/members`,
         method: 'POST',
@@ -247,7 +247,7 @@ export const api = baseApi.injectEndpoints({
       }),
       invalidatesTags: ['ProjectMember', 'Me', 'Audit'],
     }),
-    updateProjectMember: b.mutation<void, { projectId: string; userId: string; role: ProjectRole }>(
+    updateProjectMember: b.mutation<void, { projectId: number; userId: number; role: ProjectRole }>(
       {
         query: ({ projectId, userId, role }) => ({
           url: `projects/${projectId}/members/${userId}`,
@@ -257,7 +257,7 @@ export const api = baseApi.injectEndpoints({
         invalidatesTags: ['ProjectMember', 'Me', 'Audit'],
       },
     ),
-    removeProjectMember: b.mutation<void, { projectId: string; userId: string }>({
+    removeProjectMember: b.mutation<void, { projectId: number; userId: number }>({
       query: ({ projectId, userId }) => ({
         url: `projects/${projectId}/members/${userId}`,
         method: 'DELETE',
@@ -266,11 +266,11 @@ export const api = baseApi.injectEndpoints({
     }),
 
     // ---- Môi trường ----
-    environments: b.query<List<Environment>, string>({
+    environments: b.query<List<Environment>, number>({
       query: (pid) => `projects/${pid}/environments`,
       providesTags: ['Environment'],
     }),
-    createEnvironment: b.mutation<Environment, { projectId: string } & Body>({
+    createEnvironment: b.mutation<Environment, { projectId: number } & Body>({
       query: ({ projectId, ...body }) => ({
         url: `projects/${projectId}/environments`,
         method: 'POST',
@@ -278,31 +278,31 @@ export const api = baseApi.injectEndpoints({
       }),
       invalidatesTags: ['Environment', 'Audit'],
     }),
-    updateEnvironment: b.mutation<Environment, { id: string } & Body>({
+    updateEnvironment: b.mutation<Environment, { id: number } & Body>({
       query: ({ id, ...body }) => ({ url: `environments/${id}`, method: 'PATCH', body }),
       invalidatesTags: ['Environment', 'Audit'],
     }),
-    deleteEnvironment: b.mutation<void, string>({
+    deleteEnvironment: b.mutation<void, number>({
       query: (id) => ({ url: `environments/${id}`, method: 'DELETE' }),
       invalidatesTags: ['Environment', 'Audit'],
     }),
-    toggleTesting: b.mutation<Environment, { id: string; enabled: boolean; reason: string }>({
+    toggleTesting: b.mutation<Environment, { id: number; enabled: boolean; reason: string }>({
       query: ({ id, ...body }) => ({ url: `environments/${id}/testing`, method: 'PATCH', body }),
       invalidatesTags: ['Environment', 'Audit'],
     }),
-    variables: b.query<List<Variable>, string>({
+    variables: b.query<List<Variable>, number>({
       query: (id) => `environments/${id}/variables`,
       providesTags: ['Variable'],
     }),
-    saveVariables: b.mutation<List<Variable>, { id: string; vars: Variable[] }>({
+    saveVariables: b.mutation<List<Variable>, { id: number; vars: Variable[] }>({
       query: ({ id, vars }) => ({ url: `environments/${id}/variables`, method: 'PUT', body: vars }),
       invalidatesTags: ['Variable', 'Audit'],
     }),
-    credentials: b.query<List<Credential>, string>({
+    credentials: b.query<List<Credential>, number>({
       query: (id) => `environments/${id}/credentials`,
       providesTags: ['Credential'],
     }),
-    createCredential: b.mutation<Credential, { envId: string } & Body>({
+    createCredential: b.mutation<Credential, { envId: number } & Body>({
       query: ({ envId, ...body }) => ({
         url: `environments/${envId}/credentials`,
         method: 'POST',
@@ -310,14 +310,14 @@ export const api = baseApi.injectEndpoints({
       }),
       invalidatesTags: ['Credential', 'Audit'],
     }),
-    deleteCredential: b.mutation<void, { envId: string; id: string }>({
+    deleteCredential: b.mutation<void, { envId: number; id: number }>({
       query: ({ envId, id }) => ({
         url: `environments/${envId}/credentials/${id}`,
         method: 'DELETE',
       }),
       invalidatesTags: ['Credential', 'Audit'],
     }),
-    secrets: b.query<List<Secret>, string | void>({
+    secrets: b.query<List<Secret>, number | void>({
       query: (projectId) => ({ url: 'secrets', params: projectId ? { projectId } : undefined }),
       providesTags: ['Secret'],
     }),
@@ -332,11 +332,11 @@ export const api = baseApi.injectEndpoints({
       query: (body) => ({ url: 'targets', method: 'POST', body }),
       invalidatesTags: ['Target', 'Audit'],
     }),
-    verifyTarget: b.mutation<Target, string>({
+    verifyTarget: b.mutation<Target, number>({
       query: (id) => ({ url: `targets/${id}/verify`, method: 'POST' }),
       invalidatesTags: ['Target', 'Audit'],
     }),
-    approveTarget: b.mutation<Target, { id: string; reason: string }>({
+    approveTarget: b.mutation<Target, { id: number; reason: string }>({
       query: ({ id, reason }) => ({
         url: `targets/${id}/approve`,
         method: 'POST',
@@ -344,7 +344,7 @@ export const api = baseApi.injectEndpoints({
       }),
       invalidatesTags: ['Target', 'Audit'],
     }),
-    deleteTarget: b.mutation<void, string>({
+    deleteTarget: b.mutation<void, number>({
       query: (id) => ({ url: `targets/${id}`, method: 'DELETE' }),
       invalidatesTags: ['Target', 'Audit'],
     }),

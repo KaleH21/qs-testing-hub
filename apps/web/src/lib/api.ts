@@ -10,7 +10,7 @@ import {
 // ---- Phiên đăng nhập (docs/10 §7: access token chỉ trong bộ nhớ, refresh qua cookie httpOnly) ----
 interface SessionState {
   accessToken: string | null;
-  orgId: string | null;
+  orgId: number | null;
 }
 
 export const sessionSlice = createSlice({
@@ -20,7 +20,7 @@ export const sessionSlice = createSlice({
     tokenReceived: (s, a: PayloadAction<string>) => {
       s.accessToken = a.payload;
     },
-    orgSelected: (s, a: PayloadAction<string>) => {
+    orgSelected: (s, a: PayloadAction<number>) => {
       s.orgId = a.payload;
     },
     loggedOut: (s) => {
@@ -42,7 +42,7 @@ const rawBaseQuery = fetchBaseQuery({
   prepareHeaders: (headers, { getState }) => {
     const { accessToken, orgId } = (getState() as RootLike).session;
     if (accessToken) headers.set('Authorization', `Bearer ${accessToken}`);
-    if (orgId) headers.set('X-Organization-Id', orgId);
+    if (orgId) headers.set('X-Organization-Id', String(orgId));
     return headers;
   },
 });

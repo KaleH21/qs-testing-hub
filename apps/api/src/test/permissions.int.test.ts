@@ -36,7 +36,7 @@ describeDb('Ma trận quyền (docs/09 §2)', () => {
     const supertest = (await import('supertest')).default;
     for (const route of new Set(MATRIX.map((r) => r.route))) {
       const [method, path] = route.split(' ') as [string, string];
-      const url = path.replace(/:[A-Za-z]+/g, '00000000-0000-7000-8000-000000000000');
+      const url = path.replace(/:[A-Za-z]+/g, '1');
       const res = await (
         supertest(h.app.getHttpServer()) as unknown as Record<
           string,

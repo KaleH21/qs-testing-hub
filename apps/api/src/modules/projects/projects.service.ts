@@ -30,7 +30,7 @@ export class ProjectsService {
   ) {}
 
   /** Owner/Admin thấy mọi project của org; người khác chỉ project mình là thành viên (docs/09 §2) */
-  async list(actor: Actor, org: string | undefined, q?: string, archived = false) {
+  async list(actor: Actor, org: number | undefined, q?: string, archived = false) {
     const { orgId, role } = await this.access.org(actor, 'org.read', org);
     const where: SQL[] = [
       eq(projects.organizationId, orgId),
@@ -47,7 +47,7 @@ export class ProjectsService {
             projectMembers,
             and(
               eq(projectMembers.projectId, projects.id),
-              eq(projectMembers.userId, (actor as { userId: string }).userId),
+              eq(projectMembers.userId, (actor as { userId: number }).userId),
             ),
           )
           .where(and(...where))
@@ -57,7 +57,7 @@ export class ProjectsService {
 
   async create(
     actor: Actor,
-    org: string | undefined,
+    org: number | undefined,
     dto: { key: string; name: string; description?: string; repositoryUrl?: string },
   ) {
     const { orgId } = await this.access.org(actor, 'org.projects.create', org);
@@ -85,14 +85,14 @@ export class ProjectsService {
     }
   }
 
-  async get(actor: Actor, id: string) {
+  async get(actor: Actor, id: number) {
     const { project, projectRole } = await this.access.project(actor, id, 'project.read');
     return { ...view(project), myRole: projectRole };
   }
 
   async update(
     actor: Actor,
-    id: string,
+    id: number,
     dto: { name?: string; description?: string; repositoryUrl?: string },
   ) {
     const { orgId, project } = await this.access.project(actor, id, 'project.update');
@@ -108,7 +108,7 @@ export class ProjectsService {
     return view(p!);
   }
 
-  async setArchived(actor: Actor, id: string, archived: boolean) {
+  async setArchived(actor: Actor, id: number, archived: boolean) {
     const { orgId } = await this.access.project(actor, id, 'project.archive');
     const [p] = await this.db
       .update(projects)
@@ -127,7 +127,7 @@ export class ProjectsService {
 
   // ---- Thành viên dự án ----
 
-  async members(actor: Actor, id: string) {
+  async members(actor: Actor, id: number) {
     await this.access.project(actor, id, 'project.read');
     const data = await this.db
       .select({
@@ -143,7 +143,7 @@ export class ProjectsService {
     return { data };
   }
 
-  async addMember(actor: Actor, id: string, dto: { userId: string; role: ProjectRole }) {
+  async addMember(actor: Actor, id: number, dto: { userId: number; role: ProjectRole }) {
     const { orgId } = await this.access.project(actor, id, 'project.members.manage');
     const [inOrg] = await this.db
       .select({ id: organizationMembers.id })
@@ -172,7 +172,7 @@ export class ProjectsService {
     return { userId: dto.userId, role: dto.role };
   }
 
-  private async membership(projectId: string, userId: string) {
+  private async membership(projectId: number, userId: number) {
     const [m] = await this.db
       .select()
       .from(projectMembers)
@@ -181,7 +181,7 @@ export class ProjectsService {
     return m;
   }
 
-  async updateMember(actor: Actor, id: string, userId: string, role: ProjectRole) {
+  async updateMember(actor: Actor, id: number, userId: number, role: ProjectRole) {
     const { orgId } = await this.access.project(actor, id, 'project.members.manage');
     const m = await this.membership(id, userId);
     await this.db.update(projectMembers).set({ role }).where(eq(projectMembers.id, m.id));
@@ -196,7 +196,7 @@ export class ProjectsService {
     return { userId, role };
   }
 
-  async removeMember(actor: Actor, id: string, userId: string) {
+  async removeMember(actor: Actor, id: number, userId: number) {
     const { orgId } = await this.access.project(actor, id, 'project.members.manage');
     const m = await this.membership(id, userId);
     await this.db.delete(projectMembers).where(eq(projectMembers.id, m.id));

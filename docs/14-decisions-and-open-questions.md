@@ -55,6 +55,8 @@
 | D-36 | Guard chỉ **xác thực**; quyền kiểm trong service qua `AccessService` dùng một ma trận quyền chung (`packages/validation/permissions.ts`) cho cả backend và `useCan` ở frontend. Test ma trận gọi mọi route đã đăng ký với 7 vai trò + người ngoài dự án + người tổ chức khác + service account; route chưa khai báo → test fail | Phần lớn quy tắc phụ thuộc dữ liệu (môi trường thuộc dự án nào, `kind = PRODUCTION` cần Admin); một nguồn sự thật cho UI và API | 09 §2 |
 | D-37 | Dải IP nội bộ cho môi trường `LOCAL` lưu ở `organizations.settings.localNetwork { allowedCidrs, allowLoopback }`, không tạo dòng `target_hosts`. Danh sách mật khẩu phổ biến lấy từ SecLists NCSC 100k, giữ mục ≥ 10 ký tự | Cấu hình một lần cho cả tổ chức, luôn đọc cùng bản ghi tổ chức | 04 §4, 09 §3 |
 
+| D-38 | **ID bản ghi là số tự tăng** (`bigint identity`) ở DB, API và URL, thay cho UUID v7 (docs/04 §1 cũ). Mã bí mật không phải ID (mã phiên `sid`, token xác minh, token service account, refresh token) vẫn là chuỗi ngẫu nhiên. Hệ quả đã chấp nhận: (1) ID lộ quy mô dữ liệu và đoán được, an toàn vẫn dựa vào kiểm quyền (404 khi không có quyền); (2) **xuất/nhập dự án ở Phase 8 phải đánh số lại toàn bộ id và khóa ngoại** vì mỗi bản cài đánh số từ 1; (3) link chia sẻ báo cáo (Phase 8) dùng token ngẫu nhiên, không dùng id | Yêu cầu của chủ dự án (07/11/2026) | 04 §1, 05 §1 |
+
 ## 2. Câu hỏi cần anh/chị trả lời
 
 Các câu dưới ảnh hưởng thiết kế hoặc lộ trình. Cột "Mặc định" là phương án tài liệu đang dùng nếu chưa có câu trả lời.

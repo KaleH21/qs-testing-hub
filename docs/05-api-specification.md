@@ -11,7 +11,7 @@
 | Mục | Quy ước |
 |---|---|
 | Base path | `/api/v1`. Đổi không tương thích → `/api/v2`, giữ v1 tối thiểu 6 tháng. Thêm field mới không tính là đổi không tương thích; client phải bỏ qua field lạ |
-| Định dạng | JSON UTF-8, field `camelCase`, thời gian ISO 8601 UTC (`2026-11-07T03:15:00Z`), id là UUID |
+| Định dạng | JSON UTF-8, field `camelCase`, thời gian ISO 8601 UTC (`2026-11-07T03:15:00Z`), id là số nguyên (D-38) |
 | Tạo mới | `201` + body là đối tượng vừa tạo. Tác vụ dài (chạy test, import, xuất file) trả `202` + `{ id, status }` để theo dõi |
 | Sửa | `PATCH` chỉ gửi field cần đổi. Bản ghi có `version`/`updatedAt` → gửi header `If-Match: <updatedAt>` để chống ghi đè, sai thì `409 CONFLICT` |
 | Xóa | Đối tượng định nghĩa (project, suite, case, plan) là **archive** (`POST .../archive`). Kết quả chạy không có endpoint xóa |

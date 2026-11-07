@@ -5,7 +5,7 @@
 
 ## 1. Quy ước
 
-- Khóa chính `id uuid` (UUID v7 sinh ở ứng dụng để sắp xếp được theo thời gian).
+- Khóa chính `id bigint GENERATED ALWAYS AS IDENTITY` (số tự tăng, D-38); khóa ngoại cũng là `bigint`. Trong mọi bảng ở tài liệu này, chỗ ghi `uuid`/`uuid[]` cho id và khóa ngoại được hiểu là `bigint`/`bigint[]`. Ngoại lệ: `refresh_tokens.family_id` (mã phiên, = claim `sid`) vẫn là UUID ngẫu nhiên vì phải không đoán được.
 - Thời gian `timestamptz`, lưu UTC. Cột chuẩn: `created_at`, `updated_at` (trigger hoặc ORM cập nhật).
 - Mọi bảng nghiệp vụ có `organization_id` hoặc truy được về organization qua `project_id`. Repository **bắt buộc** nhận `orgId`/`projectId` trong mọi query (xem [09-security-model.md](09-security-model.md) mục 2).
 - Xóa mềm (`archived_at`) cho project, test case, suite, plan. Kết quả chạy **không bao giờ** xóa hay sửa (chỉ thêm).

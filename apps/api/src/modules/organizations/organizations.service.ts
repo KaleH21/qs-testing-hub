@@ -51,18 +51,18 @@ export class OrganizationsService {
     return { data: rows.map((r) => ({ ...this.view(r.org), role: r.role })) };
   }
 
-  private async load(orgId: string) {
+  private async load(orgId: number) {
     const [org] = await this.db.select().from(organizations).where(eq(organizations.id, orgId));
     if (!org) throw notFound('Tổ chức');
     return org;
   }
 
-  async get(actor: Actor, orgId: string) {
+  async get(actor: Actor, orgId: number) {
     await this.access.org(actor, 'org.read', orgId);
     return this.view(await this.load(orgId));
   }
 
-  async update(actor: Actor, orgId: string, dto: { name?: string; defaultTimezone?: string }) {
+  async update(actor: Actor, orgId: number, dto: { name?: string; defaultTimezone?: string }) {
     await this.access.org(actor, 'org.update', orgId);
     const before = await this.load(orgId);
     const [org] = await this.db
@@ -90,7 +90,7 @@ export class OrganizationsService {
    */
   async setTestingSwitches(
     actor: Actor,
-    orgId: string,
+    orgId: number,
     dto: { productionTesting?: boolean; localTesting?: boolean; reason: string },
   ) {
     await this.access.org(actor, 'org.testingSwitches', orgId);
@@ -126,7 +126,7 @@ export class OrganizationsService {
     return this.view(org!);
   }
 
-  async setLocalNetwork(actor: Actor, orgId: string, dto: LocalNetwork) {
+  async setLocalNetwork(actor: Actor, orgId: number, dto: LocalNetwork) {
     await this.access.org(actor, 'org.localNetwork', orgId);
     const before = await this.load(orgId);
     const localNetwork = parseLocalNetwork({ localNetwork: dto }); // chuẩn hóa + từ chối dải metadata
@@ -148,7 +148,7 @@ export class OrganizationsService {
 
   // ---- Thành viên ----
 
-  async members(actor: Actor, orgId: string) {
+  async members(actor: Actor, orgId: number) {
     await this.access.org(actor, 'org.read', orgId);
     const data = await this.db
       .select({
@@ -175,7 +175,7 @@ export class OrganizationsService {
   /** Thêm trực tiếp (lời mời qua email ở Phase 8). User mới nhận mật khẩu tạm, chỉ trả 1 lần */
   async addMember(
     actor: Actor,
-    orgId: string,
+    orgId: number,
     dto: { email: string; displayName: string; role: OrgRole },
   ) {
     const { role: actorRole } = await this.access.org(actor, 'org.members.manage', orgId);
@@ -221,7 +221,7 @@ export class OrganizationsService {
     return { ...result, temporaryPassword: temporary ?? null };
   }
 
-  private async membership(orgId: string, userId: string) {
+  private async membership(orgId: number, userId: number) {
     const [m] = await this.db
       .select()
       .from(organizationMembers)
@@ -232,7 +232,7 @@ export class OrganizationsService {
     return m;
   }
 
-  private async assertNotLastOwner(orgId: string, member: { role: OrgRole }) {
+  private async assertNotLastOwner(orgId: number, member: { role: OrgRole }) {
     if (member.role !== 'OWNER') return;
     const [row] = await this.db
       .select({ n: count() })
@@ -243,7 +243,7 @@ export class OrganizationsService {
     if (row!.n <= 1) throw invalidState('Không thể xóa hoặc hạ quyền Owner cuối cùng');
   }
 
-  async updateMember(actor: Actor, orgId: string, userId: string, role: OrgRole) {
+  async updateMember(actor: Actor, orgId: number, userId: number, role: OrgRole) {
     const { role: actorRole } = await this.access.org(actor, 'org.members.manage', orgId);
     const m = await this.membership(orgId, userId);
     this.assertCanTouchRole(actorRole, m.role, role);
@@ -261,7 +261,7 @@ export class OrganizationsService {
   }
 
   /** Xóa khỏi tổ chức: bỏ khỏi mọi project của tổ chức + thu hồi phiên (docs/09 §3) */
-  async removeMember(actor: Actor, orgId: string, userId: string) {
+  async removeMember(actor: Actor, orgId: number, userId: number) {
     const { role: actorRole } = await this.access.org(actor, 'org.members.manage', orgId);
     const m = await this.membership(orgId, userId);
     this.assertCanTouchRole(actorRole, m.role);

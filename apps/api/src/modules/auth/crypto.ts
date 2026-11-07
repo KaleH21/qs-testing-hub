@@ -49,17 +49,17 @@ export class JwtKeys {
       : [{ kid: 'k1', key: Buffer.from(config) }];
   }
 
-  sign(sub: string, sid: string): Promise<string> {
+  sign(userId: number, sid: string): Promise<string> {
     const { kid, key } = this.keys[0]!;
     return new SignJWT({ sid })
       .setProtectedHeader({ alg: 'HS256', kid })
-      .setSubject(sub)
+      .setSubject(String(userId)) // JWT yêu cầu sub là chuỗi
       .setIssuedAt()
       .setExpirationTime(`${ACCESS_TOKEN_TTL_S}s`)
       .sign(key);
   }
 
-  async verify(token: string): Promise<{ sub: string; sid: string }> {
+  async verify(token: string): Promise<{ sub: number; sid: string }> {
     const { payload } = await jwtVerify(
       token,
       (header) => {
@@ -69,10 +69,14 @@ export class JwtKeys {
       },
       { algorithms: ['HS256'] },
     );
-    if (typeof payload.sub !== 'string' || typeof payload.sid !== 'string') {
+    if (
+      typeof payload.sub !== 'string' ||
+      !/^[1-9]\d{0,15}$/.test(payload.sub) ||
+      typeof payload.sid !== 'string'
+    ) {
       throw new Error('Thiếu claim');
     }
-    return { sub: payload.sub, sid: payload.sid };
+    return { sub: Number(payload.sub), sid: payload.sid };
   }
 }
 

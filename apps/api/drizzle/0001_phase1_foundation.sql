@@ -4,13 +4,13 @@ CREATE TYPE "public"."project_role" AS ENUM('QA_LEAD', 'TESTER', 'DEVELOPER', 'V
 CREATE TYPE "public"."user_status" AS ENUM('ACTIVE', 'LOCKED', 'DISABLED');--> statement-breakpoint
 CREATE TYPE "public"."verification_method" AS ENUM('DNS_TXT', 'WELL_KNOWN_FILE', 'ADMIN_APPROVAL');--> statement-breakpoint
 CREATE TABLE "audit_logs" (
-	"id" uuid PRIMARY KEY NOT NULL,
-	"organization_id" uuid,
-	"actor_user_id" uuid,
-	"actor_service_account_id" uuid,
+	"id" bigint PRIMARY KEY GENERATED ALWAYS AS IDENTITY (sequence name "audit_logs_id_seq" INCREMENT BY 1 MINVALUE 1 MAXVALUE 9223372036854775807 START WITH 1 CACHE 1),
+	"organization_id" bigint,
+	"actor_user_id" bigint,
+	"actor_service_account_id" bigint,
 	"action" text NOT NULL,
 	"entity_type" text NOT NULL,
-	"entity_id" uuid,
+	"entity_id" bigint,
 	"metadata" jsonb DEFAULT '{}'::jsonb NOT NULL,
 	"ip" text,
 	"user_agent" text,
@@ -18,33 +18,33 @@ CREATE TABLE "audit_logs" (
 );
 --> statement-breakpoint
 CREATE TABLE "environment_credentials" (
-	"id" uuid PRIMARY KEY NOT NULL,
-	"environment_id" uuid NOT NULL,
+	"id" bigint PRIMARY KEY GENERATED ALWAYS AS IDENTITY (sequence name "environment_credentials_id_seq" INCREMENT BY 1 MINVALUE 1 MAXVALUE 9223372036854775807 START WITH 1 CACHE 1),
+	"environment_id" bigint NOT NULL,
 	"role_name" text NOT NULL,
 	"username" text NOT NULL,
-	"password_secret_id" uuid NOT NULL,
-	"login_flow_id" uuid,
+	"password_secret_id" bigint NOT NULL,
+	"login_flow_id" bigint,
 	"created_at" timestamp with time zone DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
 CREATE TABLE "environment_variables" (
-	"id" uuid PRIMARY KEY NOT NULL,
-	"environment_id" uuid NOT NULL,
+	"id" bigint PRIMARY KEY GENERATED ALWAYS AS IDENTITY (sequence name "environment_variables_id_seq" INCREMENT BY 1 MINVALUE 1 MAXVALUE 9223372036854775807 START WITH 1 CACHE 1),
+	"environment_id" bigint NOT NULL,
 	"key" text NOT NULL,
 	"value" text,
-	"secret_id" uuid
+	"secret_id" bigint
 );
 --> statement-breakpoint
 CREATE TABLE "environments" (
-	"id" uuid PRIMARY KEY NOT NULL,
-	"project_id" uuid NOT NULL,
+	"id" bigint PRIMARY KEY GENERATED ALWAYS AS IDENTITY (sequence name "environments_id_seq" INCREMENT BY 1 MINVALUE 1 MAXVALUE 9223372036854775807 START WITH 1 CACHE 1),
+	"project_id" bigint NOT NULL,
 	"name" text NOT NULL,
 	"kind" "environment_kind" NOT NULL,
 	"web_base_url" text,
 	"api_base_url" text,
 	"testing_enabled" boolean DEFAULT true NOT NULL,
 	"testing_disabled_reason" text,
-	"testing_toggled_by" uuid,
+	"testing_toggled_by" bigint,
 	"testing_toggled_at" timestamp with time zone,
 	"default_headers" jsonb DEFAULT '{}'::jsonb NOT NULL,
 	"config_metadata" jsonb DEFAULT '{}'::jsonb NOT NULL,
@@ -54,12 +54,12 @@ CREATE TABLE "environments" (
 );
 --> statement-breakpoint
 CREATE TABLE "invitations" (
-	"id" uuid PRIMARY KEY NOT NULL,
-	"organization_id" uuid NOT NULL,
+	"id" bigint PRIMARY KEY GENERATED ALWAYS AS IDENTITY (sequence name "invitations_id_seq" INCREMENT BY 1 MINVALUE 1 MAXVALUE 9223372036854775807 START WITH 1 CACHE 1),
+	"organization_id" bigint NOT NULL,
 	"email" text NOT NULL,
 	"role" "org_role" NOT NULL,
 	"token_hash" text NOT NULL,
-	"invited_by" uuid,
+	"invited_by" bigint,
 	"expires_at" timestamp with time zone NOT NULL,
 	"accepted_at" timestamp with time zone,
 	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
@@ -67,40 +67,40 @@ CREATE TABLE "invitations" (
 );
 --> statement-breakpoint
 CREATE TABLE "organization_members" (
-	"id" uuid PRIMARY KEY NOT NULL,
-	"organization_id" uuid NOT NULL,
-	"user_id" uuid NOT NULL,
+	"id" bigint PRIMARY KEY GENERATED ALWAYS AS IDENTITY (sequence name "organization_members_id_seq" INCREMENT BY 1 MINVALUE 1 MAXVALUE 9223372036854775807 START WITH 1 CACHE 1),
+	"organization_id" bigint NOT NULL,
+	"user_id" bigint NOT NULL,
 	"role" "org_role" NOT NULL,
 	"created_at" timestamp with time zone DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
 CREATE TABLE "organizations" (
-	"id" uuid PRIMARY KEY NOT NULL,
+	"id" bigint PRIMARY KEY GENERATED ALWAYS AS IDENTITY (sequence name "organizations_id_seq" INCREMENT BY 1 MINVALUE 1 MAXVALUE 9223372036854775807 START WITH 1 CACHE 1),
 	"name" text NOT NULL,
 	"slug" text NOT NULL,
 	"default_timezone" text DEFAULT 'Asia/Ho_Chi_Minh' NOT NULL,
 	"settings" jsonb DEFAULT '{}'::jsonb NOT NULL,
 	"production_testing_enabled" boolean DEFAULT false NOT NULL,
 	"local_testing_enabled" boolean DEFAULT true NOT NULL,
-	"testing_switches_changed_by" uuid,
+	"testing_switches_changed_by" bigint,
 	"testing_switches_changed_at" timestamp with time zone,
-	"created_by" uuid,
+	"created_by" bigint,
 	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
 	"updated_at" timestamp with time zone DEFAULT now() NOT NULL,
 	CONSTRAINT "organizations_slug_unique" UNIQUE("slug")
 );
 --> statement-breakpoint
 CREATE TABLE "project_members" (
-	"id" uuid PRIMARY KEY NOT NULL,
-	"project_id" uuid NOT NULL,
-	"user_id" uuid NOT NULL,
+	"id" bigint PRIMARY KEY GENERATED ALWAYS AS IDENTITY (sequence name "project_members_id_seq" INCREMENT BY 1 MINVALUE 1 MAXVALUE 9223372036854775807 START WITH 1 CACHE 1),
+	"project_id" bigint NOT NULL,
+	"user_id" bigint NOT NULL,
 	"role" "project_role" NOT NULL,
 	"created_at" timestamp with time zone DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
 CREATE TABLE "projects" (
-	"id" uuid PRIMARY KEY NOT NULL,
-	"organization_id" uuid NOT NULL,
+	"id" bigint PRIMARY KEY GENERATED ALWAYS AS IDENTITY (sequence name "projects_id_seq" INCREMENT BY 1 MINVALUE 1 MAXVALUE 9223372036854775807 START WITH 1 CACHE 1),
+	"organization_id" bigint NOT NULL,
 	"key" text NOT NULL,
 	"name" text NOT NULL,
 	"description" text,
@@ -108,14 +108,14 @@ CREATE TABLE "projects" (
 	"technology_metadata" jsonb DEFAULT '{}'::jsonb NOT NULL,
 	"settings" jsonb DEFAULT '{}'::jsonb NOT NULL,
 	"archived_at" timestamp with time zone,
-	"created_by" uuid,
+	"created_by" bigint,
 	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
 	"updated_at" timestamp with time zone DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
 CREATE TABLE "refresh_tokens" (
-	"id" uuid PRIMARY KEY NOT NULL,
-	"user_id" uuid NOT NULL,
+	"id" bigint PRIMARY KEY GENERATED ALWAYS AS IDENTITY (sequence name "refresh_tokens_id_seq" INCREMENT BY 1 MINVALUE 1 MAXVALUE 9223372036854775807 START WITH 1 CACHE 1),
+	"user_id" bigint NOT NULL,
 	"token_hash" text NOT NULL,
 	"family_id" uuid NOT NULL,
 	"expires_at" timestamp with time zone NOT NULL,
@@ -127,54 +127,54 @@ CREATE TABLE "refresh_tokens" (
 );
 --> statement-breakpoint
 CREATE TABLE "secrets" (
-	"id" uuid PRIMARY KEY NOT NULL,
-	"organization_id" uuid NOT NULL,
-	"project_id" uuid,
+	"id" bigint PRIMARY KEY GENERATED ALWAYS AS IDENTITY (sequence name "secrets_id_seq" INCREMENT BY 1 MINVALUE 1 MAXVALUE 9223372036854775807 START WITH 1 CACHE 1),
+	"organization_id" bigint NOT NULL,
+	"project_id" bigint,
 	"name" text NOT NULL,
 	"ciphertext" "bytea" NOT NULL,
 	"iv" "bytea" NOT NULL,
 	"auth_tag" "bytea" NOT NULL,
 	"key_version" text NOT NULL,
 	"last_rotated_at" timestamp with time zone,
-	"created_by" uuid,
+	"created_by" bigint,
 	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
 	CONSTRAINT "secrets_organization_id_project_id_name_unique" UNIQUE NULLS NOT DISTINCT("organization_id","project_id","name")
 );
 --> statement-breakpoint
 CREATE TABLE "service_accounts" (
-	"id" uuid PRIMARY KEY NOT NULL,
-	"organization_id" uuid NOT NULL,
+	"id" bigint PRIMARY KEY GENERATED ALWAYS AS IDENTITY (sequence name "service_accounts_id_seq" INCREMENT BY 1 MINVALUE 1 MAXVALUE 9223372036854775807 START WITH 1 CACHE 1),
+	"organization_id" bigint NOT NULL,
 	"name" text NOT NULL,
 	"token_prefix" text NOT NULL,
 	"token_hash" text NOT NULL,
 	"scopes" text[] NOT NULL,
-	"project_ids" uuid[],
+	"project_ids" bigint[],
 	"last_used_at" timestamp with time zone,
 	"expires_at" timestamp with time zone,
 	"revoked_at" timestamp with time zone,
-	"created_by" uuid,
+	"created_by" bigint,
 	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
 	CONSTRAINT "service_accounts_token_prefix_unique" UNIQUE("token_prefix")
 );
 --> statement-breakpoint
 CREATE TABLE "target_hosts" (
-	"id" uuid PRIMARY KEY NOT NULL,
-	"organization_id" uuid NOT NULL,
-	"project_id" uuid,
+	"id" bigint PRIMARY KEY GENERATED ALWAYS AS IDENTITY (sequence name "target_hosts_id_seq" INCREMENT BY 1 MINVALUE 1 MAXVALUE 9223372036854775807 START WITH 1 CACHE 1),
+	"organization_id" bigint NOT NULL,
+	"project_id" bigint,
 	"host_pattern" text NOT NULL,
 	"allow_private_network" boolean DEFAULT false NOT NULL,
 	"allowed_cidrs" "cidr"[],
 	"verification_method" "verification_method" NOT NULL,
 	"verification_token" text NOT NULL,
 	"verified_at" timestamp with time zone,
-	"verified_by" uuid,
+	"verified_by" bigint,
 	"expires_at" timestamp with time zone,
-	"created_by" uuid,
+	"created_by" bigint,
 	"created_at" timestamp with time zone DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
 CREATE TABLE "users" (
-	"id" uuid PRIMARY KEY NOT NULL,
+	"id" bigint PRIMARY KEY GENERATED ALWAYS AS IDENTITY (sequence name "users_id_seq" INCREMENT BY 1 MINVALUE 1 MAXVALUE 9223372036854775807 START WITH 1 CACHE 1),
 	"email" text NOT NULL,
 	"password_hash" text,
 	"display_name" text NOT NULL,

@@ -13,7 +13,7 @@ export function useCurrentOrg() {
  * Quyền trên UI (docs/10 §7) đọc từ /auth/me, cùng ma trận với backend (@qah/validation).
  * Chỉ để ẩn/disable nút; backend vẫn kiểm mọi request.
  */
-export function useCan(action: Action, projectId?: string): boolean {
+export function useCan(action: Action, projectId?: number): boolean {
   const org = useCurrentOrg();
   if (!org) return false;
   if (!projectId || !action.startsWith('project.')) return can(org.role, action);

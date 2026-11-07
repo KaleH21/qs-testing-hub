@@ -1,3 +1,4 @@
+import { idSchema } from '@qah/validation';
 import { Controller, Get, Header, Query } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { z } from 'zod';
@@ -7,13 +8,13 @@ import { AccessService } from '../access/access.service';
 import { AuditService } from './audit.service';
 
 const filterSchema = z.object({
-  actor: z.uuid().optional(),
+  actor: idSchema.optional(),
   action: z.string().max(100).optional(),
   entityType: z.string().max(50).optional(),
-  entityId: z.uuid().optional(),
+  entityId: idSchema.optional(),
   from: z.coerce.date().optional(),
   to: z.coerce.date().optional(),
-  cursor: z.uuid().optional(),
+  cursor: idSchema.optional(),
   limit: z.coerce.number().int().min(1).max(100).default(50),
 });
 
@@ -42,7 +43,7 @@ export class AuditController {
   @Get()
   async list(
     @CurrentActor() actor: Actor,
-    @OrgHeader() org: string | undefined,
+    @OrgHeader() org: number | undefined,
     @Query(new ZodPipe(filterSchema)) f: z.infer<typeof filterSchema>,
   ) {
     const { orgId } = await this.access.org(actor, 'org.audit.read', org);
@@ -54,7 +55,7 @@ export class AuditController {
   @Header('Content-Disposition', 'attachment; filename="audit-logs.csv"')
   async export(
     @CurrentActor() actor: Actor,
-    @OrgHeader() org: string | undefined,
+    @OrgHeader() org: number | undefined,
     @Query(new ZodPipe(filterSchema.omit({ cursor: true, limit: true })))
     f: Omit<z.infer<typeof filterSchema>, 'cursor' | 'limit'>,
   ) {
@@ -71,7 +72,7 @@ export class AuditController {
     ] as const;
     const lines = [cols.join(',')];
     // shortcut: tối đa 10.000 dòng mỗi lần xuất; stream khi audit lớn (Phase 8)
-    let cursor: string | undefined;
+    let cursor: number | undefined;
     for (let page = 0; page < 100; page++) {
       const { data, nextCursor } = await this.audit.list(orgId, { ...f, cursor, limit: 100 });
       for (const row of data) lines.push(cols.map((c) => csvCell(row[c])).join(','));

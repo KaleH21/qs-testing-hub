@@ -40,7 +40,7 @@ export class EnvironmentsService {
     private readonly secrets: SecretsService,
   ) {}
 
-  private async org(orgId: string): Promise<OrgRow> {
+  private async org(orgId: number): Promise<OrgRow> {
     const [o] = await this.db.select().from(organizations).where(eq(organizations.id, orgId));
     return o!;
   }
@@ -76,7 +76,7 @@ export class EnvironmentsService {
     for (const url of urls) if (url) await assertLocalTarget(url, this.env.DEPLOYMENT_MODE, net);
   }
 
-  async list(actor: Actor, projectId: string) {
+  async list(actor: Actor, projectId: number) {
     const { orgId } = await this.access.project(actor, projectId, 'project.read');
     const org = await this.org(orgId);
     const rows = await this.db
@@ -89,7 +89,7 @@ export class EnvironmentsService {
 
   async create(
     actor: Actor,
-    projectId: string,
+    projectId: number,
     dto: EnvInput & { name: string; kind: EnvironmentKind },
   ) {
     const { orgId } = await this.access.project(
@@ -124,12 +124,12 @@ export class EnvironmentsService {
     }
   }
 
-  async get(actor: Actor, envId: string) {
+  async get(actor: Actor, envId: number) {
     const { orgId, env } = await this.access.environment(actor, envId, 'project.read');
     return this.view(env, await this.org(orgId));
   }
 
-  async update(actor: Actor, envId: string, dto: EnvInput) {
+  async update(actor: Actor, envId: number, dto: EnvInput) {
     const { orgId, env } = await this.access.environment(
       actor,
       envId,
@@ -176,7 +176,7 @@ export class EnvironmentsService {
   }
 
   /** shortcut: Phase 2 thêm kiểm "chưa có run" (có run thì chỉ isActive=false, docs/05 §3.3) */
-  async remove(actor: Actor, envId: string) {
+  async remove(actor: Actor, envId: number) {
     const { orgId, env } = await this.access.environment(
       actor,
       envId,
@@ -210,7 +210,7 @@ export class EnvironmentsService {
   }
 
   /** Công tắc môi trường (D-24): PRODUCTION cần Admin, kind khác cần QA Lead */
-  async setTesting(actor: Actor, envId: string, dto: { enabled: boolean; reason: string }) {
+  async setTesting(actor: Actor, envId: number, dto: { enabled: boolean; reason: string }) {
     const action = 'project.environments.testingToggle';
     const { orgId, env } = await this.access.environment(actor, envId, action);
     if (env.kind === 'PRODUCTION')
@@ -243,7 +243,7 @@ export class EnvironmentsService {
 
   // ---- Biến môi trường ----
 
-  async variables(actor: Actor, envId: string) {
+  async variables(actor: Actor, envId: number) {
     await this.access.environment(actor, envId, 'project.read');
     const rows = await this.db
       .select()
@@ -261,8 +261,8 @@ export class EnvironmentsService {
 
   async replaceVariables(
     actor: Actor,
-    envId: string,
-    vars: Array<{ key: string; value: string } | { key: string; secretId: string }>,
+    envId: number,
+    vars: Array<{ key: string; value: string } | { key: string; secretId: number }>,
   ) {
     const { orgId, projectId } = await this.access.environment(
       actor,
@@ -308,7 +308,7 @@ export class EnvironmentsService {
 
   // ---- Tài khoản test theo vai trò (mật khẩu lưu trong vault) ----
 
-  async credentials(actor: Actor, envId: string) {
+  async credentials(actor: Actor, envId: number) {
     await this.access.environment(actor, envId, 'project.read');
     const rows = await this.db
       .select()
@@ -328,7 +328,7 @@ export class EnvironmentsService {
 
   async createCredential(
     actor: Actor,
-    envId: string,
+    envId: number,
     dto: { roleName: string; username: string; password: string },
   ) {
     const { orgId, projectId } = await this.access.environment(
@@ -370,7 +370,7 @@ export class EnvironmentsService {
     }
   }
 
-  private async credential(envId: string, id: string) {
+  private async credential(envId: number, id: number) {
     const [c] = await this.db
       .select()
       .from(environmentCredentials)
@@ -383,8 +383,8 @@ export class EnvironmentsService {
 
   async updateCredential(
     actor: Actor,
-    envId: string,
-    id: string,
+    envId: number,
+    id: number,
     dto: { username?: string; password?: string },
   ) {
     const { orgId } = await this.access.environment(actor, envId, 'project.environments.manage');
@@ -420,7 +420,7 @@ export class EnvironmentsService {
     };
   }
 
-  async removeCredential(actor: Actor, envId: string, id: string) {
+  async removeCredential(actor: Actor, envId: number, id: number) {
     const { orgId } = await this.access.environment(actor, envId, 'project.environments.manage');
     const c = await this.credential(envId, id);
     await this.db.transaction(async (tx) => {

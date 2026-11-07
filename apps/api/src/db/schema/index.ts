@@ -1,6 +1,7 @@
 // Schema theo docs/04. Phase 1: tài khoản, tổ chức, dự án, môi trường, secret, target, audit.
 
 import {
+  bigint,
   boolean,
   cidr,
   customType,
@@ -16,10 +17,11 @@ import {
   uuid,
 } from 'drizzle-orm/pg-core';
 import { ENVIRONMENT_KINDS, ORG_ROLES, PROJECT_ROLES, USER_STATUSES } from '@qah/validation';
-import { uuidv7 } from '../uuid';
 
 const bytea = customType<{ data: Buffer }>({ dataType: () => 'bytea' });
-const id = () => uuid('id').primaryKey().$defaultFn(uuidv7);
+// D-38: khóa chính là số tự tăng (bigint identity); khóa ngoại cũng là bigint
+const id = () => bigint('id', { mode: 'number' }).primaryKey().generatedAlwaysAsIdentity();
+const ref = (name: string) => bigint(name, { mode: 'number' });
 const ts = (name: string) => timestamp(name, { withTimezone: true });
 const createdAt = () => ts('created_at').notNull().defaultNow();
 const updatedAt = () =>
@@ -59,7 +61,7 @@ export const refreshTokens = pgTable(
   'refresh_tokens',
   {
     id: id(),
-    userId: uuid('user_id')
+    userId: ref('user_id')
       .notNull()
       .references(() => users.id, { onDelete: 'cascade' }),
     tokenHash: text('token_hash').notNull().unique(),
@@ -82,9 +84,9 @@ export const organizations = pgTable('organizations', {
   // D-24: cột riêng vì API, worker, scheduler đều kiểm trước mỗi lần chạy
   productionTestingEnabled: boolean('production_testing_enabled').notNull().default(false),
   localTestingEnabled: boolean('local_testing_enabled').notNull().default(true),
-  testingSwitchesChangedBy: uuid('testing_switches_changed_by').references(() => users.id),
+  testingSwitchesChangedBy: ref('testing_switches_changed_by').references(() => users.id),
   testingSwitchesChangedAt: ts('testing_switches_changed_at'),
-  createdBy: uuid('created_by').references(() => users.id),
+  createdBy: ref('created_by').references(() => users.id),
   createdAt: createdAt(),
   updatedAt: updatedAt(),
 });
@@ -93,10 +95,10 @@ export const organizationMembers = pgTable(
   'organization_members',
   {
     id: id(),
-    organizationId: uuid('organization_id')
+    organizationId: ref('organization_id')
       .notNull()
       .references(() => organizations.id, { onDelete: 'cascade' }),
-    userId: uuid('user_id')
+    userId: ref('user_id')
       .notNull()
       .references(() => users.id, { onDelete: 'cascade' }),
     role: orgRole('role').notNull(),
@@ -108,13 +110,13 @@ export const organizationMembers = pgTable(
 // Lời mời qua email: API ở Phase 8 (kiểu Máy chủ); bảng tạo sẵn theo docs/12 mục 1.1
 export const invitations = pgTable('invitations', {
   id: id(),
-  organizationId: uuid('organization_id')
+  organizationId: ref('organization_id')
     .notNull()
     .references(() => organizations.id, { onDelete: 'cascade' }),
   email: text('email').notNull(),
   role: orgRole('role').notNull(),
   tokenHash: text('token_hash').notNull().unique(),
-  invitedBy: uuid('invited_by').references(() => users.id),
+  invitedBy: ref('invited_by').references(() => users.id),
   expiresAt: ts('expires_at').notNull(),
   acceptedAt: ts('accepted_at'),
   createdAt: createdAt(),
@@ -122,18 +124,18 @@ export const invitations = pgTable('invitations', {
 
 export const serviceAccounts = pgTable('service_accounts', {
   id: id(),
-  organizationId: uuid('organization_id')
+  organizationId: ref('organization_id')
     .notNull()
     .references(() => organizations.id, { onDelete: 'cascade' }),
   name: text('name').notNull(),
   tokenPrefix: text('token_prefix').notNull().unique(),
   tokenHash: text('token_hash').notNull(),
   scopes: text('scopes').array().notNull(),
-  projectIds: uuid('project_ids').array(), // null = mọi project trong org
+  projectIds: ref('project_ids').array(), // null = mọi project trong org
   lastUsedAt: ts('last_used_at'),
   expiresAt: ts('expires_at'),
   revokedAt: ts('revoked_at'),
-  createdBy: uuid('created_by').references(() => users.id),
+  createdBy: ref('created_by').references(() => users.id),
   createdAt: createdAt(),
 });
 
@@ -142,7 +144,7 @@ export const projects = pgTable(
   'projects',
   {
     id: id(),
-    organizationId: uuid('organization_id')
+    organizationId: ref('organization_id')
       .notNull()
       .references(() => organizations.id),
     key: text('key').notNull(),
@@ -152,7 +154,7 @@ export const projects = pgTable(
     technologyMetadata: jsonb('technology_metadata').notNull().default({}),
     settings: jsonb('settings').notNull().default({}),
     archivedAt: ts('archived_at'),
-    createdBy: uuid('created_by').references(() => users.id),
+    createdBy: ref('created_by').references(() => users.id),
     createdAt: createdAt(),
     updatedAt: updatedAt(),
   },
@@ -163,10 +165,10 @@ export const projectMembers = pgTable(
   'project_members',
   {
     id: id(),
-    projectId: uuid('project_id')
+    projectId: ref('project_id')
       .notNull()
       .references(() => projects.id, { onDelete: 'cascade' }),
-    userId: uuid('user_id')
+    userId: ref('user_id')
       .notNull()
       .references(() => users.id, { onDelete: 'cascade' }),
     role: projectRole('role').notNull(),
@@ -179,17 +181,17 @@ export const secrets = pgTable(
   'secrets',
   {
     id: id(),
-    organizationId: uuid('organization_id')
+    organizationId: ref('organization_id')
       .notNull()
       .references(() => organizations.id),
-    projectId: uuid('project_id').references(() => projects.id),
+    projectId: ref('project_id').references(() => projects.id),
     name: text('name').notNull(),
     ciphertext: bytea('ciphertext').notNull(),
     iv: bytea('iv').notNull(),
     authTag: bytea('auth_tag').notNull(),
     keyVersion: text('key_version').notNull(),
     lastRotatedAt: ts('last_rotated_at'),
-    createdBy: uuid('created_by').references(() => users.id),
+    createdBy: ref('created_by').references(() => users.id),
     createdAt: createdAt(),
   },
   (t) => [unique().on(t.organizationId, t.projectId, t.name).nullsNotDistinct()],
@@ -199,7 +201,7 @@ export const environments = pgTable(
   'environments',
   {
     id: id(),
-    projectId: uuid('project_id')
+    projectId: ref('project_id')
       .notNull()
       .references(() => projects.id),
     name: text('name').notNull(),
@@ -208,7 +210,7 @@ export const environments = pgTable(
     apiBaseUrl: text('api_base_url'),
     testingEnabled: boolean('testing_enabled').notNull().default(true),
     testingDisabledReason: text('testing_disabled_reason'),
-    testingToggledBy: uuid('testing_toggled_by').references(() => users.id),
+    testingToggledBy: ref('testing_toggled_by').references(() => users.id),
     testingToggledAt: ts('testing_toggled_at'),
     defaultHeaders: jsonb('default_headers').notNull().default({}),
     configMetadata: jsonb('config_metadata').notNull().default({}),
@@ -223,12 +225,12 @@ export const environmentVariables = pgTable(
   'environment_variables',
   {
     id: id(),
-    environmentId: uuid('environment_id')
+    environmentId: ref('environment_id')
       .notNull()
       .references(() => environments.id, { onDelete: 'cascade' }),
     key: text('key').notNull(),
     value: text('value'),
-    secretId: uuid('secret_id').references(() => secrets.id),
+    secretId: ref('secret_id').references(() => secrets.id),
   },
   (t) => [uniqueIndex().on(t.environmentId, t.key)],
 );
@@ -237,15 +239,15 @@ export const environmentCredentials = pgTable(
   'environment_credentials',
   {
     id: id(),
-    environmentId: uuid('environment_id')
+    environmentId: ref('environment_id')
       .notNull()
       .references(() => environments.id, { onDelete: 'cascade' }),
     roleName: text('role_name').notNull(),
     username: text('username').notNull(),
-    passwordSecretId: uuid('password_secret_id')
+    passwordSecretId: ref('password_secret_id')
       .notNull()
       .references(() => secrets.id),
-    loginFlowId: uuid('login_flow_id'), // FK tới shared_flows thêm ở Phase 5
+    loginFlowId: ref('login_flow_id'), // FK tới shared_flows thêm ở Phase 5
     createdAt: createdAt(),
   },
   (t) => [uniqueIndex().on(t.environmentId, t.roleName)],
@@ -255,19 +257,19 @@ export const targetHosts = pgTable(
   'target_hosts',
   {
     id: id(),
-    organizationId: uuid('organization_id')
+    organizationId: ref('organization_id')
       .notNull()
       .references(() => organizations.id),
-    projectId: uuid('project_id').references(() => projects.id),
+    projectId: ref('project_id').references(() => projects.id),
     hostPattern: text('host_pattern').notNull(),
     allowPrivateNetwork: boolean('allow_private_network').notNull().default(false),
     allowedCidrs: cidr('allowed_cidrs').array(),
     verificationMethod: verificationMethod('verification_method').notNull(),
     verificationToken: text('verification_token').notNull(),
     verifiedAt: ts('verified_at'),
-    verifiedBy: uuid('verified_by').references(() => users.id),
+    verifiedBy: ref('verified_by').references(() => users.id),
     expiresAt: ts('expires_at'),
-    createdBy: uuid('created_by').references(() => users.id),
+    createdBy: ref('created_by').references(() => users.id),
     createdAt: createdAt(),
   },
   (t) => [uniqueIndex().on(t.organizationId, t.hostPattern)],
@@ -278,12 +280,12 @@ export const auditLogs = pgTable(
   'audit_logs',
   {
     id: id(),
-    organizationId: uuid('organization_id').references(() => organizations.id),
-    actorUserId: uuid('actor_user_id'),
-    actorServiceAccountId: uuid('actor_service_account_id'),
+    organizationId: ref('organization_id').references(() => organizations.id),
+    actorUserId: ref('actor_user_id'),
+    actorServiceAccountId: ref('actor_service_account_id'),
     action: text('action').notNull(),
     entityType: text('entity_type').notNull(),
-    entityId: uuid('entity_id'),
+    entityId: ref('entity_id'),
     metadata: jsonb('metadata').notNull().default({}),
     ip: text('ip'),
     userAgent: text('user_agent'),

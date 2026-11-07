@@ -13,6 +13,8 @@ export const emailSchema = z
   .email()
   .max(254)
   .transform((e) => e.toLowerCase());
+/** ID bản ghi: số nguyên tự tăng (D-38). coerce để nhận cả "5" từ query/path */
+export const idSchema = z.coerce.number().int().positive().max(Number.MAX_SAFE_INTEGER);
 const name = z.string().trim().min(1).max(200);
 const reason = z.string().trim().min(10, 'Lý do tối thiểu 10 ký tự').max(500);
 const httpUrl = z
@@ -76,14 +78,14 @@ export const localNetworkSchema = z.object({
 export const createServiceAccountSchema = z.object({
   name,
   scopes: z.array(z.enum(SERVICE_ACCOUNT_SCOPES)).min(1),
-  projectIds: z.array(z.uuid()).nullable().default(null),
+  projectIds: z.array(idSchema).nullable().default(null),
   expiresInDays: z.number().int().min(1).max(730).default(365),
 });
 export const updateServiceAccountSchema = z
   .object({
     name,
     scopes: z.array(z.enum(SERVICE_ACCOUNT_SCOPES)).min(1),
-    projectIds: z.array(z.uuid()).nullable(),
+    projectIds: z.array(idSchema).nullable(),
   })
   .partial();
 
@@ -95,7 +97,7 @@ export const createProjectSchema = z.object({
   repositoryUrl: optionalUrl,
 });
 export const updateProjectSchema = createProjectSchema.omit({ key: true }).partial();
-export const projectMemberSchema = z.object({ userId: z.uuid(), role: z.enum(PROJECT_ROLES) });
+export const projectMemberSchema = z.object({ userId: idSchema, role: z.enum(PROJECT_ROLES) });
 export const updateProjectMemberSchema = z.object({ role: z.enum(PROJECT_ROLES) });
 
 // ---- Environment ----
@@ -119,7 +121,7 @@ export const environmentVariablesSchema = z
   .array(
     z.union([
       z.object({ key: z.string().regex(/^[A-Za-z_][\w.]{0,99}$/), value: z.string().max(4000) }),
-      z.object({ key: z.string().regex(/^[A-Za-z_][\w.]{0,99}$/), secretId: z.uuid() }),
+      z.object({ key: z.string().regex(/^[A-Za-z_][\w.]{0,99}$/), secretId: idSchema }),
     ]),
   )
   .max(200)
@@ -135,7 +137,7 @@ export const updateCredentialSchema = createCredentialSchema.omit({ roleName: tr
 export const createSecretSchema = z.object({
   name: z.string().regex(/^[A-Za-z][\w.-]{0,99}$/, 'Tên secret không hợp lệ'),
   value: z.string().min(1).max(10_000),
-  projectId: z.uuid().optional(),
+  projectId: idSchema.optional(),
 });
 export const updateSecretSchema = z.object({ value: z.string().min(1).max(10_000) });
 
@@ -150,7 +152,7 @@ const hostPattern = z
 export const createTargetSchema = z
   .object({
     hostPattern,
-    projectId: z.uuid().optional(),
+    projectId: idSchema.optional(),
     verificationMethod: z.enum(VERIFICATION_METHODS),
     allowPrivateNetwork: z.boolean().default(false),
     allowedCidrs: z.array(cidr).max(20).default([]),

@@ -120,7 +120,7 @@ export function OverviewPage() {
   const { t } = useTranslation();
   const me = useMeQuery();
   const current = useCurrentOrg();
-  const org = useOrganizationQuery(current?.id ?? '', { skip: !current });
+  const org = useOrganizationQuery(current?.id ?? 0, { skip: !current });
   const projects = useProjectsQuery();
   const health = useHealth();
   const projectCount = projects.data?.data.length;

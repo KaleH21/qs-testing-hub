@@ -7,12 +7,12 @@ import { environments, organizationMembers, projectMembers, projects } from '../
 import { DB, type Db } from '../../infra.module';
 
 export interface OrgScope {
-  orgId: string;
+  orgId: number;
   role: OrgRole;
 }
 
 export interface ProjectScope extends OrgScope {
-  projectId: string;
+  projectId: number;
   projectRole: Role;
   project: typeof projects.$inferSelect;
 }
@@ -26,13 +26,13 @@ export interface ProjectScope extends OrgScope {
 export class AccessService {
   constructor(@Inject(DB) private readonly db: Db) {}
 
-  private userOf(actor: Actor): string {
+  private userOf(actor: Actor): number {
     if (actor.kind !== 'user') throw forbidden('Service account không được dùng thao tác này');
     return actor.userId;
   }
 
   /** Org đang chọn: header X-Organization-Id; nếu không gửi và user chỉ thuộc 1 org thì dùng org đó */
-  async org(actor: Actor, action: Action, orgId?: string): Promise<OrgScope> {
+  async org(actor: Actor, action: Action, orgId?: number): Promise<OrgScope> {
     const userId = this.userOf(actor);
     const rows = await this.db
       .select({ orgId: organizationMembers.organizationId, role: organizationMembers.role })
@@ -52,7 +52,7 @@ export class AccessService {
     return m;
   }
 
-  async project(actor: Actor, projectId: string, action: Action): Promise<ProjectScope> {
+  async project(actor: Actor, projectId: number, action: Action): Promise<ProjectScope> {
     const userId = this.userOf(actor);
     const [row] = await this.db
       .select({
@@ -85,7 +85,7 @@ export class AccessService {
     };
   }
 
-  async environment(actor: Actor, envId: string, action: Action) {
+  async environment(actor: Actor, envId: number, action: Action) {
     const [env] = await this.db.select().from(environments).where(eq(environments.id, envId));
     if (!env) throw notFound('Môi trường');
     const scope = await this.project(actor, env.projectId, action);

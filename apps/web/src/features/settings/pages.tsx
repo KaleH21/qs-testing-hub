@@ -292,7 +292,7 @@ export function MembersPage() {
   );
 }
 
-function AddMemberDialog({ orgId }: { orgId: string }) {
+function AddMemberDialog({ orgId }: { orgId: number }) {
   const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const [add, res] = useAddMemberMutation();
@@ -495,7 +495,7 @@ export function TargetsPage() {
   const [approve, appr] = useApproveTargetMutation();
   const [del] = useDeleteTargetMutation();
   const [create, cr] = useCreateTargetMutation();
-  const [approving, setApproving] = useState<string | null>(null);
+  const [approving, setApproving] = useState<number | null>(null);
   const form = useForm<z.input<typeof createTargetSchema>>({
     resolver: zodResolver(createTargetSchema),
     defaultValues: { verificationMethod: 'DNS_TXT' },
@@ -796,7 +796,10 @@ export function AuditLogPage() {
                 const res = await fetch(
                   `/api/v1/audit-logs/export${action ? `?action=${encodeURIComponent(action)}` : ''}`,
                   {
-                    headers: { Authorization: `Bearer ${token}`, 'X-Organization-Id': org.id },
+                    headers: {
+                      Authorization: `Bearer ${token}`,
+                      'X-Organization-Id': String(org.id),
+                    },
                   },
                 );
                 if (!res.ok) return toast.error(t('common.error'));
