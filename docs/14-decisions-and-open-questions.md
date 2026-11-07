@@ -46,6 +46,15 @@
 | D-33 | **Không gửi dữ liệu từ môi trường `PRODUCTION` cho Gemini** (`ai_provider_configs.send_production_data = false`). Lỗi ở production vẫn có phân tích theo luật cố định; Admin có thể bật sau nếu có chính sách dữ liệu | Trả lời Q5b | 08, 09 |
 | D-31 | Lộ trình mới: **M1 tuần 17** (manual + API + hiệu năng + AI phân tích lỗi), **M2 tuần 27** (MVP nội bộ: + browser, recorder, sơ đồ luồng, Quick Scan, dashboard, báo cáo), **M3 tuần 37** (lùi 2 tuần theo D-32: thêm khối kiểu Máy chủ nội bộ ở Phase 8) (v1.0: + AI sinh test, AI Explorer, CI, ZAP, lịch chạy...) | Thêm recorder, sơ đồ luồng, AI sớm hơn | 12 |
 
+### 1.2. Bổ sung khi triển khai Phase 1 (07/11/2026)
+
+| Mã | Quyết định | Lý do | Tài liệu |
+|---|---|---|---|
+| D-34 | Kiểu Cá nhân: màn `/setup` (và `pnpm hub:create-owner`) tạo tổ chức với `localNetwork.allowLoopback = true`; kiểu Máy chủ mặc định `false` | Hub Cá nhân chỉ mở ở `127.0.0.1`, test `localhost` là việc chính (G1 ≤ 15 phút) | 05 §3.1, 09 §5 |
+| D-35 | Phase 1 thêm thành viên **trực tiếp** (`POST /organizations/:id/members`), user mới nhận mật khẩu tạm hiện một lần; lời mời qua email vẫn ở Phase 8 | docs/12 mục 1.4 cần thêm thành viên trước khi có email | 05 §3.2 |
+| D-36 | Guard chỉ **xác thực**; quyền kiểm trong service qua `AccessService` dùng một ma trận quyền chung (`packages/validation/permissions.ts`) cho cả backend và `useCan` ở frontend. Test ma trận gọi mọi route đã đăng ký với 7 vai trò + người ngoài dự án + người tổ chức khác + service account; route chưa khai báo → test fail | Phần lớn quy tắc phụ thuộc dữ liệu (môi trường thuộc dự án nào, `kind = PRODUCTION` cần Admin); một nguồn sự thật cho UI và API | 09 §2 |
+| D-37 | Dải IP nội bộ cho môi trường `LOCAL` lưu ở `organizations.settings.localNetwork { allowedCidrs, allowLoopback }`, không tạo dòng `target_hosts`. Danh sách mật khẩu phổ biến lấy từ SecLists NCSC 100k, giữ mục ≥ 10 ký tự | Cấu hình một lần cho cả tổ chức, luôn đọc cùng bản ghi tổ chức | 04 §4, 09 §3 |
+
 ## 2. Câu hỏi cần anh/chị trả lời
 
 Các câu dưới ảnh hưởng thiết kế hoặc lộ trình. Cột "Mặc định" là phương án tài liệu đang dùng nếu chưa có câu trả lời.

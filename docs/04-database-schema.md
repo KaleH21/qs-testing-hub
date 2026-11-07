@@ -72,7 +72,8 @@ refresh_tokens
   I(user_id)                 -- xoay vòng: dùng lại token đã revoke → thu hồi cả family
 
 organizations
-  id, name, slug U, default_timezone, settings jsonb, created_by → users, created_at, updated_at
+  id, name, slug U, default_timezone, created_by → users, created_at, updated_at
+  settings jsonb               -- { localNetwork: { allowedCidrs: cidr[], allowLoopback } } cho môi trường LOCAL (D-37)
   production_testing_enabled bool default false   -- công tắc tổng (D-24); tắt → mọi môi trường PRODUCTION bị chặn
   local_testing_enabled bool default true         -- công tắc tổng cho môi trường LOCAL
   testing_switches_changed_by?, testing_switches_changed_at?

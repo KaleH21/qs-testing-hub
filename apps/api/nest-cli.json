@@ -1,5 +1,5 @@
 {
   "$schema": "https://json.schemastore.org/nest-cli",
   "sourceRoot": "src",
-  "compilerOptions": { "deleteOutDir": true }
+  "compilerOptions": { "deleteOutDir": true, "assets": ["**/*.txt"] }
 }

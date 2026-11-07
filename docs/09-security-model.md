@@ -24,7 +24,7 @@
 | Lớp | Quy tắc |
 |---|---|
 | Repository | Mọi hàm truy vấn nhận `scope: { orgId, projectIds }` bắt buộc (kiểu TypeScript không cho bỏ). Không có hàm `findById(id)` trần cho dữ liệu nghiệp vụ |
-| Guard | `AuthGuard` (xác thực) → `RbacGuard` (decorator `@Require('test-cases:write')`) → `PolicyService.can(actor, action, resource)` trong service cho quy tắc theo dữ liệu (vd. người duyệt ≠ người yêu cầu, chỉ người thực hiện attempt mới nộp kết quả) |
+| Guard | `AuthGuard` toàn cục (xác thực JWT hoặc token service account, kiểm phiên còn hiệu lực) → service gọi `AccessService.org/project/environment(actor, action, id)` trước khi đọc/ghi, dùng ma trận `PERMISSIONS` ở `packages/validation` (D-36). Quy tắc theo dữ liệu (người duyệt ≠ người yêu cầu, chỉ người thực hiện attempt mới nộp kết quả) cũng nằm trong service |
 | Quyền | `effectiveRole = max(org_role, project_role)`; Viewer org chỉ thấy project mình là thành viên trừ Owner/Admin. Quyền đọc từ DB (cache Redis 60 s, xóa cache khi đổi role) |
 | Phản hồi | Không có quyền đọc tài nguyên của project khác → `404 NOT_FOUND`, không phải `403`, để không lộ sự tồn tại |
 | Worker | Không tin payload queue: đọc lại `run_jobs` từ DB, kiểm `organization_id`/`project_id` khớp mọi đối tượng tham chiếu (secret, environment, request) |

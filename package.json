@@ -15,7 +15,11 @@
     "test": "turbo run test",
     "db:generate": "pnpm --filter @qah/api db:generate",
     "db:migrate": "pnpm --filter @qah/api db:migrate",
-    "prepare": "husky"
+    "prepare": "husky",
+    "hub:init": "node infrastructure/scripts/hub-init.mjs",
+    "hub:create-owner": "pnpm --filter @qah/api exec node dist/cli/create-owner.js",
+    "hub:reset-password": "pnpm --filter @qah/api exec node dist/cli/reset-password.js",
+    "hub:backup": "pnpm --filter @qah/api exec node dist/cli/backup.js"
   },
   "devDependencies": {
     "@commitlint/cli": "^21.2.4",

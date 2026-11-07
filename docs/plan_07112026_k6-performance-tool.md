@@ -26,10 +26,10 @@ Phạm vi: chỉ lập kế hoạch, chưa viết code. Tool nằm ở `tool/k6-
 | Điểm | Chi tiết | Ảnh hưởng tới tool |
 |---|---|---|
 | Stack | Express 4, MySQL (Sequelize), chạy **1 process pm2** | Kết quả staging chỉ đáng tin khi máy staging có cấu hình gần giống prod |
-| Số route | 196 route `v1` và 44 route `mobile`, khai báo dạng bảng trong [routes/v1/index.js](../qs-net-management-be/src/api/routes/v1/index.js) và [routes/mobile/index.js](../qs-net-management-be/src/api/routes/mobile/index.js) | Không thể test hết. Chỉ chọn các API nóng (mục 2.2) |
+| Số route | 196 route `v1` và 44 route `mobile`, khai báo dạng bảng trong [routes/v1/index.js](../../qs-net-management-be/src/api/routes/v1/index.js) và [routes/mobile/index.js](../../qs-net-management-be/src/api/routes/mobile/index.js) | Không thể test hết. Chỉ chọn các API nóng (mục 2.2) |
 | Swagger | Chỉ có 4 chỗ `@swagger` | Không sinh được danh sách endpoint từ OpenAPI. Phải tự khai báo trong `endpoints.json` |
-| Auth web | `POST /api/v1/login` trả về `accessToken`. Header gửi lên là `authorization: <token>`, **không có tiền tố `Bearer`** ([auth.middleware.js:79](../qs-net-management-be/src/middlewares/auth.middleware.js#L79)) | Script k6 phải gửi đúng định dạng header này |
-| Rate limit login | `authRateLimiter`: 20 lần mỗi 15 phút cho mỗi IP ([rate-limit.middleware.js](../qs-net-management-be/src/middlewares/rate-limit.middleware.js)) | **Chỉ login 1 lần trong `setup()`**, rồi dùng chung token cho mọi VU. Nếu mỗi VU tự login thì bị 429 ngay |
+| Auth web | `POST /api/v1/login` trả về `accessToken`. Header gửi lên là `authorization: <token>`, **không có tiền tố `Bearer`** ([auth.middleware.js:79](../../qs-net-management-be/src/middlewares/auth.middleware.js#L79)) | Script k6 phải gửi đúng định dạng header này |
+| Rate limit login | `authRateLimiter`: 20 lần mỗi 15 phút cho mỗi IP ([rate-limit.middleware.js](../../qs-net-management-be/src/middlewares/rate-limit.middleware.js)) | **Chỉ login 1 lần trong `setup()`**, rồi dùng chung token cho mọi VU. Nếu mỗi VU tự login thì bị 429 ngay |
 | Rate limit mobile | Khoá theo `deviceId + IP` | Nếu mọi VU dùng chung 1 `deviceId` thì sẽ bị 429. Cần **mỗi VU một thiết bị test** (mục 7) |
 | Mỗi request có auth | Thực hiện 2 query DB: kiểm tra token còn hợp lệ, và kiểm tra account | Đây là chi phí cố định của mọi API. Nên đo riêng |
 
@@ -116,7 +116,7 @@ Vì sao chọn cách này:
 - **`default()`:**
   - Chọn endpoint theo `weight` (tỉ lệ lấy từ traffic thật ở mục 2.2).
   - Gửi request với tag `name: <tên endpoint>`. Path có `:id` thì vẫn gộp chung một nhóm.
-  - Gọi `check()` để kiểm tra status 2xx, và với mobile thì kiểm tra thêm `success === true`. Lý do: middleware mobile trả về **HTTP 200 kèm `success:false`** khi có lỗi ([mobile-response.middleware.js](../qs-net-management-be/src/middlewares/mobile-response.middleware.js)). Nếu chỉ nhìn status code thì sẽ không thấy lỗi.
+  - Gọi `check()` để kiểm tra status 2xx, và với mobile thì kiểm tra thêm `success === true`. Lý do: middleware mobile trả về **HTTP 200 kèm `success:false`** khi có lỗi ([mobile-response.middleware.js](../../qs-net-management-be/src/middlewares/mobile-response.middleware.js)). Nếu chỉ nhìn status code thì sẽ không thấy lỗi.
 - **Lấy số liệu riêng cho từng API:** summary của k6 chỉ ghi sub-metric nào có threshold. Vì vậy script tự sinh threshold cho mỗi endpoint đã chọn:
   ```js
   thresholds[`http_req_duration{name:${e.name}}`] = [`p(95)<${e.sloP95Ms}`];
@@ -274,7 +274,7 @@ Vẫn chạy được không cần UI: `k6 run -e TARGET=staging -e PROFILE=smok
 ## 10. Đã chốt (07/11/2026). Tool đã viết xong ở `tool/k6-perf/` (xem README)
 
 1. **Môi trường:** dùng luôn máy local, gồm BE `localhost:3020` (process pm2/node đang chạy sẵn) và MySQL `goscan` (bản restore từ backup). Không dựng staging riêng.
-2. **Access token** sống **15 ngày**, refresh token sống 30 ngày ([authUtils.js:20](../qs-net-management-be/src/common/utils/auth/authUtils.js#L20)). Vì vậy profile `soak` không cần refresh.
+2. **Access token** sống **15 ngày**, refresh token sống 30 ngày ([authUtils.js:20](../../qs-net-management-be/src/common/utils/auth/authUtils.js#L20)). Vì vậy profile `soak` không cần refresh.
 3. **Chỉ chạy local:** bỏ hẳn target prod và staging. Cả `server.js` lẫn `k6/main.js` đều từ chối URL không phải localhost.
 4. **SLO:** p95 < 1 giây, tỉ lệ thành công ≥ 99%, tỉ lệ sẵn sàng ≥ 99,9% (không 5xx, không timeout). Xem `config/slo.json`.
 

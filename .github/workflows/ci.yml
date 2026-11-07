@@ -8,6 +8,19 @@ on:
 jobs:
   check:
     runs-on: ubuntu-latest
+    # Test tích hợp (ma trận quyền, auth, vault...) chạy trên Postgres thật
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_USER: qahub
+          POSTGRES_PASSWORD: qahub
+          POSTGRES_DB: qahub_test
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U qahub" --health-interval 5s --health-retries 10
+    env:
+      TEST_DATABASE_URL: postgres://qahub:qahub@127.0.0.1:5432/qahub_test
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4

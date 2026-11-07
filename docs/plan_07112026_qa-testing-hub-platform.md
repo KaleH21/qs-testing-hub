@@ -1,7 +1,7 @@
 # Plan: Chuyển `k6-perf` thành QA Testing Hub, nền tảng kiểm thử website nội bộ
 
 Ngày: 07/11/2026 (bản 3: cài kiểu Cá nhân trước, Recorder chạy ngay trong Hub không cần extension, không gửi dữ liệu production cho Gemini)
-Phạm vi: lập kế hoạch và tài liệu thiết kế, chưa viết code. Chi tiết ở [docs/](docs/00-README.md).
+Phạm vi: lập kế hoạch và tài liệu thiết kế, chưa viết code. Chi tiết ở [docs/](00-README.md).
 
 ---
 
@@ -29,7 +29,7 @@ Phạm vi: lập kế hoạch và tài liệu thiết kế, chưa viết code. C
   - Mỗi dự án đi theo các bước `LOCAL` → `DEV` → `STAGING` → `PRODUCTION`, dùng chung một bộ test.
   - **Bật/tắt test** được ở cấp công ty (production mặc định **tắt**, local mặc định **bật**) và ở từng môi trường.
 - **AI:** mặc định **Gemini**. Đổi sang OpenAI, Claude hay model chạy nội bộ ngay trong phần cài đặt, không cần sửa code. **Dữ liệu từ production không gửi cho Gemini**; lỗi ở production chỉ được phân tích bằng luật cố định.
-- **Dùng lại từ `k6-perf`:** script k6, 20 luật chẩn đoán nguyên nhân, bố cục báo cáo hiệu năng, lịch sử các lần chạy cũ. Chi tiết ở [docs/11](docs/11-k6-migration.md).
+- **Dùng lại từ `k6-perf`:** script k6, 20 luật chẩn đoán nguyên nhân, bố cục báo cáo hiệu năng, lịch sử các lần chạy cũ. Chi tiết ở [docs/11](11-k6-migration.md).
 
 ## 2. Hai kiểu cài: làm kiểu Cá nhân trước
 
@@ -61,7 +61,7 @@ Recorder (trong Hub) ◄═ WebSocket ═►      │
                                             └─► MinIO (ảnh, video, log, báo cáo)
 ```
 
-Chi tiết ở [docs/03](docs/03-architecture.md).
+Chi tiết ở [docs/03](03-architecture.md).
 
 ## 5. Lộ trình (team 3 dev + 1 QA bán thời gian)
 
@@ -71,7 +71,7 @@ Chi tiết ở [docs/03](docs/03-architecture.md).
 | **M2 – MVP nội bộ** (Cá nhân) | 27 | + Test trình duyệt, **Recorder**, **sơ đồ luồng**, Kiểm tra nhanh, sinh test theo luật, accessibility, SEO, dashboard, **báo cáo 1 trang**, quality gate |
 | **M3 – v1.0** | 37 | + **kiểu Máy chủ nội bộ** (dùng chung cả team, link chia sẻ, SSO), AI sinh test, **AI Explorer**, AI tóm tắt báo cáo, nhận kết quả từ CI, bảo mật ZAP, visual regression, lịch chạy, thông báo, backup |
 
-Lộ trình dài hơn bản đầu 6 tuần. Lý do: thêm Recorder dạng trình duyệt trong Hub, sơ đồ luồng, AI Explorer, đưa AI lên sớm, và tách kiểu Máy chủ thành một khối riêng. Thêm 1 dev thì rút còn khoảng 29 tuần. Chi tiết ở [docs/12](docs/12-implementation-plan.md).
+Lộ trình dài hơn bản đầu 6 tuần. Lý do: thêm Recorder dạng trình duyệt trong Hub, sơ đồ luồng, AI Explorer, đưa AI lên sớm, và tách kiểu Máy chủ thành một khối riêng. Thêm 1 dev thì rút còn khoảng 29 tuần. Chi tiết ở [docs/12](12-implementation-plan.md).
 
 ## 6. Rủi ro lớn nhất
 
@@ -81,7 +81,7 @@ Lộ trình dài hơn bản đầu 6 tuần. Lý do: thêm Recorder dạng trìn
 
 ## 7. Còn cần anh/chị trả lời
 
-Các câu hỏi lớn đã có câu trả lời. Phần còn lại ở [docs/14](docs/14-decisions-and-open-questions.md) mục 2 có phương án mặc định, nên không chặn việc bắt đầu:
+Các câu hỏi lớn đã có câu trả lời. Phần còn lại ở [docs/14](14-decisions-and-open-questions.md) mục 2 có phương án mặc định, nên không chặn việc bắt đầu:
 
 - Quy mô team và ngày bắt đầu.
 - Cấu hình máy của dev.

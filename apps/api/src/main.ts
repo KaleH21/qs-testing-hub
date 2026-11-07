@@ -1,10 +1,9 @@
 import 'reflect-metadata';
-import { RequestMethod } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { Logger } from 'nestjs-pino';
 import { AppModule } from './app.module';
-import { HttpExceptionFilter } from './common/http-exception.filter';
+import { configureApp } from './app.setup';
 import { ENV, type Env } from './config/env';
 import { runMigrations } from './db/migrate';
 import { MigrationState } from './infra.module';
@@ -14,11 +13,7 @@ async function bootstrap() {
   const logger = app.get(Logger);
   app.useLogger(logger);
   app.enableShutdownHooks();
-  app.useGlobalFilters(new HttpExceptionFilter());
-  // health và metrics không đi qua /api/v1 (docs/05 §3.15)
-  app.setGlobalPrefix('api/v1', {
-    exclude: [{ path: 'health/{*path}', method: RequestMethod.GET }],
-  });
+  configureApp(app);
 
   const doc = SwaggerModule.createDocument(
     app,

@@ -3,6 +3,7 @@ import { LoggerModule } from 'nestjs-pino';
 import { genRequestId } from './common/request-id';
 import { loadEnv } from './config/env';
 import { InfraModule } from './infra.module';
+import { FoundationModule } from './modules/foundation.module';
 import { HealthModule } from './modules/health/health.module';
 
 const env = loadEnv();
@@ -19,6 +20,7 @@ const env = loadEnv();
     }),
     InfraModule,
     HealthModule,
+    FoundationModule,
   ],
 })
 export class AppModule {}

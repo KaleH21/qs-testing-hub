@@ -11,6 +11,9 @@ x-app-env: &app-env
   DATABASE_URL: postgres://qahub:${POSTGRES_PASSWORD}@postgres:5432/qahub
   REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379/0
   S3_ENDPOINT: http://minio:9000
+  JWT_SECRET: ${JWT_SECRET:?thiếu JWT_SECRET, chạy pnpm hub:init}
+  # Master key vault đọc từ Docker secret (docs/09 §4), không nằm trong biến môi trường
+  SECRETS_MASTER_KEY_FILE: /run/secrets/qahub_master_key
 
 x-hardening: &hardening
   read_only: true
@@ -34,6 +37,9 @@ services:
     build: { context: ., dockerfile: infrastructure/docker/Dockerfile, target: api }
     image: qa-hub/api:dev
     environment: *app-env
+    # shortcut: chưa chạy thử (máy chưa có Docker); nếu container uid 10001 không đọc được file
+    # (quyền 600 trên host) thì chmod 640 + group phù hợp, hoặc dùng Docker secret của swarm
+    secrets: [qahub_master_key]
     depends_on:
       postgres: { condition: service_healthy }
       redis: { condition: service_started }
@@ -99,3 +105,7 @@ volumes:
   pgdata:
   redisdata:
   miniodata:
+
+secrets:
+  qahub_master_key:
+    file: ./secrets/qahub_master_key

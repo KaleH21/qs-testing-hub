@@ -2,7 +2,7 @@
 
 Bộ tài liệu thiết kế cho **QA Testing Hub (bản Web)**: nền tảng kiểm thử website dùng nội bộ, phát triển từ tool `k6-perf` và spec `QA-Testing-Hub-Product-Specification.md` v1.0.
 
-Bản tóm tắt cho người ra quyết định: [../plan_07112026_qa-testing-hub-platform.md](../plan_07112026_qa-testing-hub-platform.md).
+Bản tóm tắt cho người ra quyết định: [plan_07112026_qa-testing-hub-platform.md](plan_07112026_qa-testing-hub-platform.md).
 
 | # | Tài liệu | Nội dung | Ai cần đọc |
 |---|---|---|---|

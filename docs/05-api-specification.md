@@ -99,7 +99,9 @@ Cột **Quyền**: role tối thiểu theo ma trận ở [01-product-requirement
 
 | Method | Path | Quyền | Ghi chú |
 |---|---|---|---|
-| POST | `/auth/register` | Công khai | Chỉ bật khi org cho tự đăng ký; mặc định tắt (dùng lời mời) |
+| GET | `/setup` | Công khai | `{ needsSetup, deploymentMode }`: `needsSetup = true` khi DB chưa có user (màn `/setup`, D-32) |
+| POST | `/setup` | Công khai | `{ email, password, displayName, organizationName }` → tạo Owner + tổ chức, trả access token như login. Chỉ chạy được khi chưa có user (`409 INVALID_STATE`); kiểu Cá nhân bật sẵn `localNetwork.allowLoopback` (D-34) |
+| POST | `/auth/register` | Công khai | Chỉ bật khi org cho tự đăng ký; mặc định tắt (dùng lời mời). **Chưa làm** ở Phase 1 |
 | POST | `/auth/login` | Công khai | Trả access token, set cookie refresh. Sai N lần → khóa tạm |
 | POST | `/auth/refresh` | Cookie + CSRF | Xoay vòng refresh token |
 | POST | `/auth/logout` | Đăng nhập | Thu hồi session hiện tại |
@@ -121,6 +123,7 @@ Cột **Quyền**: role tối thiểu theo ma trận ở [01-product-requirement
 | GET · PATCH | `/organizations/:id` | Viewer · Admin | Tên, timezone mặc định, `settings` |
 | PATCH | `/organizations/:id/testing-switches` | Admin | `{ productionTesting?, localTesting?, reason }` (D-24). `reason` bắt buộc. Tắt khi có run đang chạy trên môi trường bị ảnh hưởng → trả `409 INVALID_STATE` kèm danh sách run, gọi lại với `stopRunning: true` để dừng chúng, hoặc `stopRunning: false` để chỉ chặn run mới. Ghi audit `testing.switch` |
 | GET | `/organizations/:id/members` | Viewer | |
+| POST | `/organizations/:id/members` | Admin | Thêm trực tiếp (D-35): `{ email, displayName, role }`. Email chưa có tài khoản → tạo user, trả `temporaryPassword` **một lần**; đã có → chỉ thêm membership. Chỉ Owner gán được role `OWNER` |
 | PATCH · DELETE | `/organizations/:id/members/:userId` | Admin | Đổi role / xóa. Không xóa/hạ được Owner cuối cùng |
 | GET · POST | `/organizations/:id/invitations` | Admin | Mời qua email, token hết hạn 7 ngày. **Kiểu Máy chủ (Phase 8)**; kiểu Cá nhân chỉ có Owner tạo lúc cài |
 | DELETE | `/organizations/:id/invitations/:invId` | Admin | Thu hồi lời mời |

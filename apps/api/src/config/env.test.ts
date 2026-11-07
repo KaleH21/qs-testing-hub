@@ -5,6 +5,8 @@ const base = {
   DATABASE_URL: 'postgres://u:p@localhost:5432/qahub',
   REDIS_URL: 'redis://localhost:6379/0',
   S3_ENDPOINT: 'http://localhost:9000',
+  JWT_SECRET: 'x'.repeat(32),
+  SECRETS_MASTER_KEY: Buffer.alloc(32, 1).toString('base64'),
 };
 
 describe('loadEnv', () => {
@@ -23,6 +25,11 @@ describe('loadEnv', () => {
     expect(
       loadEnv({ ...base, DEPLOYMENT_MODE: 'server', HUB_BIND_ADDRESS: '0.0.0.0' }).DEPLOYMENT_MODE,
     ).toBe('server');
+  });
+
+  it('bắt buộc có khóa vault', () => {
+    const noKey = { ...base, SECRETS_MASTER_KEY: undefined };
+    expect(() => loadEnv(noKey)).toThrow(/SECRETS_MASTER_KEY/);
   });
 
   it('báo thiếu biến bắt buộc', () => {
