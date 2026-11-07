@@ -1,70 +1,100 @@
 @import 'tailwindcss';
+@import '@fontsource-variable/ibm-plex-sans';
+@import '@fontsource-variable/jetbrains-mono';
 
 @custom-variant dark (&:where(.dark, .dark *));
 
-/* Token theo quy ước shadcn + token trạng thái docs/10 §2. Không hardcode màu trong component. */
+/*
+ * Hệ token (docs/10 §2, phong cách Swiss tối giản cho công cụ nội bộ): nền slate, nút chính slate đậm,
+ * xanh lá cho "đạt". Màu chữ ≥ 4.5:1, viền ô nhập ≥ 3:1 (WCAG 1.4.11) ở cả sáng và tối.
+ * Component chỉ dùng token, không hardcode màu.
+ */
 :root {
   --radius: 0.5rem;
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.45 0.16 255);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.45 0 0);
-  --accent: oklch(0.96 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.55 0.22 27);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.88 0 0);
-  --ring: oklch(0.55 0.16 255);
+  --background: #f8fafc;
+  --foreground: #0f172a;
+  --card: #ffffff;
+  --card-foreground: #0f172a;
+  --popover: #ffffff;
+  --popover-foreground: #0f172a;
+  --primary: #0f172a;
+  --primary-foreground: #ffffff;
+  --secondary: #f1f5f9;
+  --secondary-foreground: #0f172a;
+  --muted: #f1f5f9;
+  --muted-foreground: #475569;
+  --accent: #f1f5f9;
+  --accent-foreground: #0f172a;
+  --destructive: #dc2626;
+  --border: #e2e8f0;
+  --input: #64748b;
+  --ring: #16a34a;
+  --brand: #16a34a;
+  --brand-foreground: #ffffff;
 
-  --status-ok: oklch(0.5 0.14 150);
-  --status-warn: oklch(0.55 0.14 75);
-  --status-error: oklch(0.52 0.2 27);
-  --status-neutral: oklch(0.5 0 0);
-  --env-local: oklch(0.5 0.18 300);
-  --env-dev: oklch(0.5 0.16 255);
-  --env-staging: oklch(0.55 0.15 60);
-  --env-prod: oklch(0.5 0.2 27);
+  --status-ok: #15803d;
+  --status-warn: #b45309;
+  --status-error: #b91c1c;
+  --status-neutral: #475569;
+  --env-local: #6d28d9;
+  --env-dev: #1d4ed8;
+  --env-staging: #c2410c;
+  --env-prod: #b91c1c;
+
+  --sidebar: #ffffff;
+  --sidebar-foreground: #334155;
+  --sidebar-primary: #0f172a;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #f1f5f9;
+  --sidebar-accent-foreground: #0f172a;
+  --sidebar-border: #e2e8f0;
+  --sidebar-ring: #16a34a;
 }
 
 .dark {
-  --background: oklch(0.16 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.2 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.2 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.72 0.13 255);
-  --primary-foreground: oklch(0.16 0 0);
-  --secondary: oklch(0.27 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.25 0 0);
-  --muted-foreground: oklch(0.72 0 0);
-  --accent: oklch(0.27 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.65 0.2 27);
-  --border: oklch(0.3 0 0);
-  --input: oklch(0.34 0 0);
-  --ring: oklch(0.6 0.12 255);
+  --background: #0f172a;
+  --foreground: #f8fafc;
+  --card: #1b2336;
+  --card-foreground: #f8fafc;
+  --popover: #1b2336;
+  --popover-foreground: #f8fafc;
+  --primary: #f8fafc;
+  --primary-foreground: #0f172a;
+  --secondary: #272f42;
+  --secondary-foreground: #f8fafc;
+  --muted: #272f42;
+  --muted-foreground: #94a3b8;
+  --accent: #272f42;
+  --accent-foreground: #f8fafc;
+  --destructive: #ef4444;
+  --border: #2a3448;
+  --input: #64748b;
+  --ring: #22c55e;
+  --brand: #22c55e;
+  --brand-foreground: #0f172a;
 
-  --status-ok: oklch(0.75 0.15 150);
-  --status-warn: oklch(0.8 0.14 80);
-  --status-error: oklch(0.72 0.17 27);
-  --status-neutral: oklch(0.72 0 0);
-  --env-local: oklch(0.75 0.14 300);
-  --env-dev: oklch(0.75 0.12 255);
-  --env-staging: oklch(0.8 0.13 65);
-  --env-prod: oklch(0.72 0.17 27);
+  --status-ok: #4ade80;
+  --status-warn: #fbbf24;
+  --status-error: #f87171;
+  --status-neutral: #94a3b8;
+  --env-local: #a78bfa;
+  --env-dev: #60a5fa;
+  --env-staging: #fb923c;
+  --env-prod: #f87171;
+
+  --sidebar: #0b1220;
+  --sidebar-foreground: #cbd5e1;
+  --sidebar-primary: #f8fafc;
+  --sidebar-primary-foreground: #0f172a;
+  --sidebar-accent: #1b2336;
+  --sidebar-accent-foreground: #f8fafc;
+  --sidebar-border: #1e293b;
+  --sidebar-ring: #22c55e;
 }
 
 @theme inline {
+  --font-sans: 'IBM Plex Sans Variable', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono Variable', ui-monospace, monospace;
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
@@ -87,6 +117,8 @@
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
+  --color-brand: var(--brand);
+  --color-brand-foreground: var(--brand-foreground);
   --color-status-ok: var(--status-ok);
   --color-status-warn: var(--status-warn);
   --color-status-error: var(--status-error);
@@ -95,13 +127,75 @@
   --color-env-dev: var(--env-dev);
   --color-env-staging: var(--env-staging);
   --color-env-prod: var(--env-prod);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
 }
 
 @layer base {
   * {
     @apply border-border outline-ring/50;
   }
+  html {
+    color-scheme: light;
+  }
+  html.dark {
+    color-scheme: dark;
+  }
   body {
-    @apply bg-background text-foreground antialiased;
+    @apply bg-background text-foreground font-sans antialiased;
+    font-feature-settings: 'ss01';
+  }
+  /* Mọi thứ bấm được có con trỏ tay */
+  button:not(:disabled),
+  [role='button'],
+  [role='tab'],
+  a[href],
+  select:not(:disabled),
+  summary,
+  label[for],
+  input[type='checkbox']:not(:disabled) {
+    cursor: pointer;
+  }
+  code,
+  kbd {
+    @apply font-mono;
+  }
+  :focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+  }
+}
+
+/* Tôn trọng người dùng tắt chuyển động (docs/10 §2.1, WCAG 2.3.3) */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Bảng dùng chung một kiểu khung thẻ: đặt một lần ở đây thay vì sửa từng trang */
+@layer components {
+  [data-slot='table-container'] {
+    @apply bg-card rounded-xl border;
+  }
+  [data-slot='table-head'] {
+    @apply text-muted-foreground h-11 px-4 text-xs font-medium tracking-wide uppercase;
+  }
+  [data-slot='table-cell'] {
+    @apply px-4 py-3;
+  }
+  [data-slot='table-row'] {
+    @apply transition-colors duration-150;
   }
 }

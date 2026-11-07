@@ -15,7 +15,11 @@ export const emailSchema = z
   .transform((e) => e.toLowerCase());
 const name = z.string().trim().min(1).max(200);
 const reason = z.string().trim().min(10, 'Lý do tối thiểu 10 ký tự').max(500);
-const httpUrl = z.url({ protocol: /^https?$/ }).max(2000);
+const httpUrl = z
+  .url({ protocol: /^https?$/, error: 'URL không hợp lệ (cần bắt đầu bằng http:// hoặc https://)' })
+  .max(2000);
+// Ô URL không bắt buộc: form gửi chuỗi rỗng khi để trống → coi như không nhập
+const optionalUrl = z.union([z.literal('').transform(() => undefined), httpUrl]).optional();
 const timezone = z
   .string()
   .max(64)
@@ -88,7 +92,7 @@ export const createProjectSchema = z.object({
   key: z.string().regex(/^[A-Z][A-Z0-9]{1,9}$/, 'Mã dự án: 2–10 ký tự IN HOA/số, bắt đầu bằng chữ'),
   name,
   description: z.string().max(2000).optional(),
-  repositoryUrl: httpUrl.optional(),
+  repositoryUrl: optionalUrl,
 });
 export const updateProjectSchema = createProjectSchema.omit({ key: true }).partial();
 export const projectMemberSchema = z.object({ userId: z.uuid(), role: z.enum(PROJECT_ROLES) });
@@ -99,8 +103,8 @@ const headers = z.record(z.string().max(200), z.string().max(4000));
 export const createEnvironmentSchema = z.object({
   name: z.string().trim().min(1).max(100),
   kind: z.enum(ENVIRONMENT_KINDS),
-  webBaseUrl: httpUrl.optional(),
-  apiBaseUrl: httpUrl.optional(),
+  webBaseUrl: optionalUrl,
+  apiBaseUrl: optionalUrl,
   defaultHeaders: headers.default({}),
 });
 export const updateEnvironmentSchema = createEnvironmentSchema

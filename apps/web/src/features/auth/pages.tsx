@@ -8,7 +8,8 @@ import type { z } from 'zod';
 import { useAppDispatch, useAppSelector } from '@/app/store';
 import { ErrorText, Field } from '@/components/common';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Laptop, Loader2, LockKeyhole, ServerCrash, ShieldCheck } from 'lucide-react';
+import { BrandMark } from '@/components/brand';
 import { Input } from '@/components/ui/input';
 import {
   useLoginMutation,
@@ -32,11 +33,16 @@ export function RequireAuth() {
   }, [token, dispatch]);
   const me = useMeQuery(undefined, { skip: !token });
   if (!checked || (token && me.isLoading))
-    return <div className="bg-muted m-6 h-8 w-48 animate-pulse rounded" aria-busy="true" />;
+    return (
+      <div className="flex min-h-screen items-center justify-center" aria-busy="true">
+        <Loader2 className="text-muted-foreground size-6 animate-spin" aria-hidden />
+      </div>
+    );
   if (!token || me.error) return <Navigate to="/login" replace />;
   return <Outlet />;
 }
 
+/** Bố cục 2 cột: giới thiệu sản phẩm bên trái (ẩn trên màn hẹp), form bên phải */
 function AuthCard({
   title,
   description,
@@ -46,16 +52,63 @@ function AuthCard({
   description?: string;
   children: ReactNode;
 }) {
+  const { t } = useTranslation();
+  const points = [
+    { icon: Laptop, text: t('auth.point1') },
+    { icon: ShieldCheck, text: t('auth.point2') },
+    { icon: LockKeyhole, text: t('auth.point3') },
+  ];
   return (
-    <main className="flex min-h-screen items-center justify-center p-4">
-      <Card className="w-full max-w-md">
-        <CardHeader>
-          <CardTitle className="text-xl">{title}</CardTitle>
-          {description && <CardDescription>{description}</CardDescription>}
-        </CardHeader>
-        <CardContent>{children}</CardContent>
-      </Card>
+    <main className="grid min-h-screen lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)]">
+      <section className="bg-sidebar text-sidebar-foreground relative hidden flex-col justify-between border-r p-10 lg:flex">
+        <BrandMark />
+        <div className="max-w-md space-y-8">
+          <p className="text-foreground text-2xl leading-snug font-semibold text-balance">
+            {t('auth.tagline')}
+          </p>
+          <ul className="space-y-4">
+            {points.map(({ icon: Icon, text }) => (
+              <li key={text} className="flex gap-3 text-sm">
+                <span className="bg-brand/10 text-brand flex size-8 shrink-0 items-center justify-center rounded-md">
+                  <Icon className="size-4" aria-hidden />
+                </span>
+                <span className="pt-1.5">{text}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+        <p className="text-muted-foreground text-xs">© QA Testing Hub</p>
+      </section>
+      <section className="flex items-center justify-center p-4 sm:p-8">
+        <div className="w-full max-w-sm space-y-6">
+          <div className="lg:hidden">
+            <BrandMark />
+          </div>
+          <div className="space-y-1.5">
+            <h1 className="text-2xl font-semibold tracking-tight">{title}</h1>
+            {description && <p className="text-muted-foreground text-sm">{description}</p>}
+          </div>
+          {children}
+        </div>
+      </section>
     </main>
+  );
+}
+
+/** Không hỏi được API "đã setup chưa" → báo rõ thay vì im lặng ở màn login */
+function ApiDown({ onRetry }: { onRetry: () => void }) {
+  const { t } = useTranslation();
+  return (
+    <div
+      role="alert"
+      className="border-status-error/40 text-status-error flex items-start gap-3 rounded-lg border p-3 text-sm"
+    >
+      <ServerCrash className="mt-0.5 size-4 shrink-0" aria-hidden />
+      <p className="flex-1">{t('auth.apiDown')}</p>
+      <Button size="sm" variant="outline" onClick={onRetry}>
+        {t('common.retry')}
+      </Button>
+    </div>
   );
 }
 
@@ -79,6 +132,7 @@ export function LoginPage() {
   const errs = form.formState.errors;
   return (
     <AuthCard title={t('auth.loginTitle')}>
+      {status.isError && <ApiDown onRetry={() => void status.refetch()} />}
       <form onSubmit={onSubmit} className="space-y-4" noValidate>
         <Field id="email" label={t('auth.email')} error={errs.email?.message}>
           <Input
@@ -99,6 +153,7 @@ export function LoginPage() {
         </Field>
         <ErrorText error={error} />
         <Button type="submit" className="w-full" disabled={isLoading}>
+          {isLoading && <Loader2 className="animate-spin" aria-hidden />}
           {t('auth.login')}
         </Button>
         {status.data?.deploymentMode === 'personal' && (
@@ -132,6 +187,7 @@ export function SetupPage() {
   const errs = form.formState.errors;
   return (
     <AuthCard title={t('auth.setupTitle')} description={t('auth.setupDescription')}>
+      {status.isError && <ApiDown onRetry={() => void status.refetch()} />}
       <form onSubmit={onSubmit} className="space-y-4" noValidate>
         <Field
           id="organizationName"
@@ -161,6 +217,7 @@ export function SetupPage() {
         </Field>
         <ErrorText error={error} />
         <Button type="submit" className="w-full" disabled={isLoading}>
+          {isLoading && <Loader2 className="animate-spin" aria-hidden />}
           {t('auth.createOwner')}
         </Button>
       </form>

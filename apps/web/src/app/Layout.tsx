@@ -1,6 +1,8 @@
 import type { Action } from '@qah/validation';
 import {
+  ChevronsUpDown,
   FolderKanban,
+  Globe2,
   KeyRound,
   LayoutDashboard,
   LogOut,
@@ -15,15 +17,40 @@ import {
 } from 'lucide-react';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { NavLink, Outlet, useNavigate } from 'react-router';
+import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router';
 import { useAppDispatch } from '@/app/store';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { Separator } from '@/components/ui/separator';
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarFooter,
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarGroupLabel,
+  SidebarHeader,
+  SidebarInset,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  SidebarProvider,
+  SidebarRail,
+  SidebarTrigger,
+} from '@/components/ui/sidebar';
+import { BrandMark } from '@/components/brand';
 import { Toaster } from '@/components/ui/sonner';
+import { useLogoutMutation, useMeQuery } from '@/features/api';
 import { baseApi, loggedOut } from '@/lib/api';
-import { useLogoutMutation } from '@/features/api';
-import { LANGUAGES } from '@/i18n';
 import { useCan, useCurrentOrg } from '@/lib/session';
 import { applyTheme, readTheme, type Theme } from '@/lib/theme';
-import { cn } from '@/lib/utils';
 
 type NavItem = { to: string; key: string; icon: typeof LayoutDashboard; action?: Action };
 
@@ -44,109 +71,171 @@ const SETTINGS: NavItem[] = [
   { to: '/settings/testing-switches', key: 'testing.title', icon: Power },
   { to: '/settings/audit-log', key: 'audit.title', icon: ScrollText, action: 'org.audit.read' },
 ];
+const ALL = [...MAIN, ...SETTINGS, { to: '/settings/profile', key: 'profile.title', icon: User }];
 
-function NavItemLink({ item }: { item: NavItem }) {
+function NavEntry({ item }: { item: NavItem }) {
   const { t } = useTranslation();
+  const { pathname } = useLocation();
   const allowed = useCan(item.action ?? 'org.read');
   if (!allowed) return null; // ẩn theo quyền (docs/10 §3); backend vẫn kiểm
+  const active =
+    item.to === '/'
+      ? pathname === '/'
+      : pathname.startsWith(item.to) || (item.to === '/projects' && pathname.startsWith('/p/'));
   const Icon = item.icon;
   return (
-    <NavLink
-      to={item.to}
-      end={item.to === '/'}
-      className={({ isActive }) =>
-        cn(
-          'flex items-center gap-2 rounded-md px-3 py-2 text-sm',
-          isActive ? 'bg-muted font-medium' : 'hover:bg-muted',
-        )
-      }
-    >
-      <Icon className="size-4" aria-hidden />
-      {t(item.key)}
-    </NavLink>
+    <SidebarMenuItem>
+      <SidebarMenuButton asChild isActive={active} tooltip={t(item.key)}>
+        <NavLink to={item.to} end={item.to === '/'}>
+          <Icon aria-hidden />
+          <span>{t(item.key)}</span>
+        </NavLink>
+      </SidebarMenuButton>
+    </SidebarMenuItem>
   );
 }
 
-export function Layout() {
+const initials = (name: string) =>
+  name
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(-2)
+    .map((w) => w[0]!.toUpperCase())
+    .join('');
+
+function UserMenu() {
   const { t, i18n } = useTranslation();
-  const [theme, setTheme] = useState<Theme>(readTheme);
-  const org = useCurrentOrg();
+  const { data: me } = useMeQuery();
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const [logout] = useLogoutMutation();
-
+  const [theme, setTheme] = useState<Theme>(readTheme);
   const toggleTheme = () => {
     const next = theme === 'dark' ? 'light' : 'dark';
     applyTheme(next);
     setTheme(next);
   };
+  if (!me) return null;
+  return (
+    <SidebarMenu>
+      <SidebarMenuItem>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <SidebarMenuButton
+              size="lg"
+              className="data-[state=open]:bg-sidebar-accent"
+              aria-label={t('nav.account')}
+            >
+              <Avatar className="size-8 rounded-md">
+                <AvatarFallback className="bg-primary text-primary-foreground rounded-md text-xs font-semibold">
+                  {initials(me.user.displayName)}
+                </AvatarFallback>
+              </Avatar>
+              <span className="grid min-w-0 flex-1 text-left text-sm leading-tight">
+                <span className="truncate font-medium">{me.user.displayName}</span>
+                <span className="text-muted-foreground truncate text-xs">{me.user.email}</span>
+              </span>
+              <ChevronsUpDown className="ml-auto size-4" aria-hidden />
+            </SidebarMenuButton>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent side="top" align="start" className="w-60">
+            <DropdownMenuLabel className="text-muted-foreground text-xs font-normal">
+              {me.user.email}
+            </DropdownMenuLabel>
+            <DropdownMenuItem asChild>
+              <Link to="/settings/profile">
+                <User aria-hidden /> {t('profile.title')}
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              onSelect={(e) => {
+                e.preventDefault();
+                toggleTheme();
+              }}
+            >
+              {theme === 'dark' ? <Sun aria-hidden /> : <Moon aria-hidden />}
+              {theme === 'dark' ? t('theme.toLight') : t('theme.toDark')}
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              onSelect={(e) => {
+                e.preventDefault();
+                void i18n.changeLanguage(i18n.language === 'vi' ? 'en' : 'vi');
+              }}
+            >
+              <Globe2 aria-hidden />
+              {i18n.language === 'vi' ? 'English' : 'Tiếng Việt'}
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem
+              variant="destructive"
+              onSelect={async () => {
+                await logout();
+                dispatch(loggedOut());
+                dispatch(baseApi.util.resetApiState());
+                navigate('/login', { replace: true });
+              }}
+            >
+              <LogOut aria-hidden /> {t('auth.logout')}
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </SidebarMenuItem>
+    </SidebarMenu>
+  );
+}
+
+export function Layout() {
+  const { t } = useTranslation();
+  const org = useCurrentOrg();
+  const { pathname } = useLocation();
+  const current = [...ALL]
+    .sort((a, b) => b.to.length - a.to.length)
+    .find((i) => (i.to === '/' ? pathname === '/' : pathname.startsWith(i.to)));
+  const title = pathname.startsWith('/p/') ? t('projects.settings') : current ? t(current.key) : '';
 
   return (
-    <div className="flex min-h-screen flex-col md:flex-row">
-      <aside className="flex shrink-0 flex-col border-b md:w-60 md:border-r md:border-b-0">
-        <div className="px-4 pt-4 text-lg font-semibold">{t('app.name')}</div>
-        {org && <div className="text-muted-foreground px-4 pb-3 text-xs">{org.name}</div>}
-        <nav className="flex flex-wrap gap-1 px-2 pb-2 md:flex-col" aria-label={t('nav.main')}>
-          {MAIN.map((i) => (
-            <NavItemLink key={i.to} item={i} />
-          ))}
-          <p className="text-muted-foreground mt-3 hidden px-3 text-xs uppercase md:block">
-            {t('nav.settings')}
-          </p>
-          {SETTINGS.map((i) => (
-            <NavItemLink key={i.to} item={i} />
-          ))}
-        </nav>
-        <div className="mt-auto flex items-center gap-1 border-t px-3 py-3">
-          <NavLink
-            to="/settings/profile"
-            className="hover:bg-muted rounded-md p-2"
-            aria-label={t('profile.title')}
-          >
-            <User className="size-4" />
-          </NavLink>
-          <label className="sr-only" htmlFor="lang">
-            {t('language.label')}
-          </label>
-          <select
-            id="lang"
-            value={i18n.language}
-            onChange={(e) => void i18n.changeLanguage(e.target.value)}
-            className="bg-background rounded-md border px-2 py-1 text-sm"
-          >
-            {LANGUAGES.map((l) => (
-              <option key={l} value={l}>
-                {l.toUpperCase()}
-              </option>
-            ))}
-          </select>
-          <button
-            type="button"
-            onClick={toggleTheme}
-            aria-label={theme === 'dark' ? t('theme.toLight') : t('theme.toDark')}
-            className="hover:bg-muted rounded-md p-2"
-          >
-            {theme === 'dark' ? <Sun className="size-4" /> : <Moon className="size-4" />}
-          </button>
-          <button
-            type="button"
-            aria-label={t('auth.logout')}
-            className="hover:bg-muted rounded-md p-2"
-            onClick={async () => {
-              await logout();
-              dispatch(loggedOut());
-              dispatch(baseApi.util.resetApiState());
-              navigate('/login', { replace: true });
-            }}
-          >
-            <LogOut className="size-4" />
-          </button>
-        </div>
-      </aside>
-      <main className="min-w-0 flex-1 p-4 md:p-6">
-        <Outlet />
-      </main>
-      <Toaster richColors />
-    </div>
+    <SidebarProvider>
+      <Sidebar collapsible="icon">
+        <SidebarHeader className="h-14 justify-center border-b px-3">
+          <BrandMark subtitle={org?.name} />
+        </SidebarHeader>
+        <SidebarContent>
+          <SidebarGroup>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                {MAIN.map((i) => (
+                  <NavEntry key={i.to} item={i} />
+                ))}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+          <SidebarGroup>
+            <SidebarGroupLabel>{t('nav.settings')}</SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                {SETTINGS.map((i) => (
+                  <NavEntry key={i.to} item={i} />
+                ))}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        </SidebarContent>
+        <SidebarFooter className="border-t">
+          <UserMenu />
+        </SidebarFooter>
+        <SidebarRail />
+      </Sidebar>
+      <SidebarInset className="min-w-0">
+        <header className="bg-background/90 sticky top-0 z-10 flex h-14 shrink-0 items-center gap-2 border-b px-4 backdrop-blur">
+          <SidebarTrigger className="-ml-1" aria-label={t('nav.toggleSidebar')} />
+          <Separator orientation="vertical" className="mr-1 h-4" />
+          <span className="text-muted-foreground truncate text-sm">{title}</span>
+        </header>
+        <main className="mx-auto w-full max-w-7xl flex-1 p-4 md:p-8">
+          <Outlet />
+        </main>
+      </SidebarInset>
+      <Toaster richColors closeButton position="bottom-right" />
+    </SidebarProvider>
   );
 }

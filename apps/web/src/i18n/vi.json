@@ -1,13 +1,22 @@
 {
-  "app": { "name": "QA Testing Hub" },
+  "app": {
+    "name": "QA Testing Hub"
+  },
   "nav": {
     "main": "Điều hướng chính",
     "overview": "Tổng quan",
     "projects": "Dự án",
-    "settings": "Cài đặt"
+    "settings": "Cài đặt",
+    "account": "Tài khoản",
+    "toggleSidebar": "Thu gọn / mở thanh bên"
   },
-  "theme": { "toLight": "Chuyển sang giao diện sáng", "toDark": "Chuyển sang giao diện tối" },
-  "language": { "label": "Ngôn ngữ" },
+  "theme": {
+    "toLight": "Chuyển sang giao diện sáng",
+    "toDark": "Chuyển sang giao diện tối"
+  },
+  "language": {
+    "label": "Ngôn ngữ"
+  },
   "common": {
     "error": "Đã có lỗi xảy ra",
     "retry": "Thử lại",
@@ -35,7 +44,13 @@
     "organizationName": "Tên tổ chức",
     "displayName": "Họ tên",
     "passwordHint": "Tối thiểu 10 ký tự, không dùng mật khẩu phổ biến",
-    "createOwner": "Tạo tài khoản Owner"
+    "createOwner": "Tạo tài khoản Owner",
+    "tagline": "Kiểm thử website của bạn ở một nơi: test case, chạy thử, báo cáo dễ hiểu.",
+    "point1": "Test website đang chạy ở localhost, không cần đưa lên internet",
+    "point2": "Phân quyền theo dự án, mọi thao tác quan trọng đều có audit",
+    "point3": "Bí mật được mã hóa, không bao giờ hiện lại trên giao diện",
+    "apiDown": "Không kết nối được API của Hub. Kiểm tra api đã chạy chưa (pnpm dev) rồi thử lại.",
+    "personalBadge": "Kiểu cài Cá nhân"
   },
   "profile": {
     "title": "Hồ sơ cá nhân",
@@ -77,7 +92,12 @@
       "DEVELOPER": "Developer",
       "VIEWER": "Viewer"
     },
-    "env": { "LOCAL": "Local", "DEV": "Dev", "STAGING": "Staging", "PRODUCTION": "Production" },
+    "env": {
+      "LOCAL": "Local",
+      "DEV": "Dev",
+      "STAGING": "Staging",
+      "PRODUCTION": "Production"
+    },
     "verification": {
       "DNS_TXT": "Bản ghi DNS TXT",
       "WELL_KNOWN_FILE": "File /.well-known",
@@ -96,7 +116,11 @@
     "method": "Cách xác minh",
     "empty": "Chưa có domain nào. Website local không cần thêm ở đây.",
     "status": "Trạng thái",
-    "statusValue": { "PENDING": "Chờ xác minh", "VERIFIED": "Đã xác minh", "EXPIRED": "Hết hạn" },
+    "statusValue": {
+      "PENDING": "Chờ xác minh",
+      "VERIFIED": "Đã xác minh",
+      "EXPIRED": "Hết hạn"
+    },
     "verify": "Kiểm tra xác minh",
     "approve": "Duyệt",
     "deleteConfirm": "Xóa host này khỏi allowlist? Lần chạy mới tới host này sẽ bị chặn."
@@ -141,13 +165,17 @@
     "keyHint": "2–10 ký tự IN HOA hoặc số, vd. QSNET",
     "name": "Tên dự án",
     "description": "Mô tả",
-    "tab": { "environments": "Môi trường & biến", "members": "Thành viên dự án" },
+    "tab": {
+      "environments": "Môi trường & biến",
+      "members": "Thành viên dự án"
+    },
     "archive": "Lưu trữ",
     "unarchive": "Bỏ lưu trữ",
     "archiveConfirm": "Lưu trữ dự án này? Dữ liệu vẫn được giữ.",
     "addMember": "Thêm thành viên tổ chức",
     "adminsSeeAll": "Owner và Admin của tổ chức luôn thấy mọi dự án.",
-    "noMembers": "Chưa có thành viên"
+    "noMembers": "Chưa có thành viên",
+    "noDescription": "Chưa có mô tả"
   },
   "env": {
     "empty": "Chưa có môi trường. Thêm môi trường Local với địa chỉ website đang chạy trên máy (vd. http://localhost:3000).",
@@ -170,7 +198,8 @@
     "addSecretVar": "Thêm biến từ secret",
     "credentials": "Tài khoản test theo vai trò",
     "noCredentials": "Chưa có tài khoản test",
-    "roleName": "Vai trò"
+    "roleName": "Vai trò",
+    "secretSuffix": "(secret)"
   },
   "overview": {
     "title": "Tổng quan",
@@ -184,7 +213,26 @@
       "redis": "Hàng đợi (Redis)",
       "storage": "Lưu trữ (MinIO)",
       "migrations": "Migration"
-    }
+    },
+    "greeting": "Xin chào, {{name}}",
+    "subtitle": "Bắt đầu kiểm thử website đầu tiên của bạn trong vài bước.",
+    "nextSteps": "Bước tiếp theo",
+    "step1": "Tạo dự án",
+    "step1Hint": "Mỗi website một dự án, có mã ngắn như QSNET.",
+    "step2": "Thêm môi trường Local",
+    "step2Hint": "Khai báo địa chỉ website đang chạy, ví dụ http://localhost:3000.",
+    "step3": "Kiểm tra công tắc test",
+    "step3Hint": "Production mặc định tắt, Local mặc định bật.",
+    "open": "Mở",
+    "projects": "Dự án",
+    "production": "Test Production",
+    "local": "Test Local",
+    "on": "Đang bật",
+    "off": "Đang tắt",
+    "done": "Đã xong"
   },
-  "notFound": { "title": "Không tìm thấy trang", "back": "Về trang tổng quan" }
+  "notFound": {
+    "title": "Không tìm thấy trang",
+    "back": "Về trang tổng quan"
+  }
 }

@@ -1,13 +1,22 @@
 {
-  "app": { "name": "QA Testing Hub" },
+  "app": {
+    "name": "QA Testing Hub"
+  },
   "nav": {
     "main": "Main navigation",
     "overview": "Overview",
     "projects": "Projects",
-    "settings": "Settings"
+    "settings": "Settings",
+    "account": "Account",
+    "toggleSidebar": "Toggle sidebar"
   },
-  "theme": { "toLight": "Switch to light theme", "toDark": "Switch to dark theme" },
-  "language": { "label": "Language" },
+  "theme": {
+    "toLight": "Switch to light theme",
+    "toDark": "Switch to dark theme"
+  },
+  "language": {
+    "label": "Language"
+  },
   "common": {
     "error": "Something went wrong",
     "retry": "Retry",
@@ -35,7 +44,13 @@
     "organizationName": "Organization name",
     "displayName": "Full name",
     "passwordHint": "At least 10 characters, no common passwords",
-    "createOwner": "Create Owner account"
+    "createOwner": "Create Owner account",
+    "tagline": "Test your websites in one place: test cases, runs, and reports anyone can read.",
+    "point1": "Test websites running on localhost, no need to deploy them",
+    "point2": "Per-project permissions, every important action is audited",
+    "point3": "Secrets are encrypted and never shown again in the UI",
+    "apiDown": "Cannot reach the Hub API. Check that the api is running (pnpm dev) and try again.",
+    "personalBadge": "Personal install"
   },
   "profile": {
     "title": "Profile",
@@ -77,7 +92,12 @@
       "DEVELOPER": "Developer",
       "VIEWER": "Viewer"
     },
-    "env": { "LOCAL": "Local", "DEV": "Dev", "STAGING": "Staging", "PRODUCTION": "Production" },
+    "env": {
+      "LOCAL": "Local",
+      "DEV": "Dev",
+      "STAGING": "Staging",
+      "PRODUCTION": "Production"
+    },
     "verification": {
       "DNS_TXT": "DNS TXT record",
       "WELL_KNOWN_FILE": "/.well-known file",
@@ -96,7 +116,11 @@
     "method": "Verification method",
     "empty": "No domains yet. Local websites don't need to be added here.",
     "status": "Status",
-    "statusValue": { "PENDING": "Pending", "VERIFIED": "Verified", "EXPIRED": "Expired" },
+    "statusValue": {
+      "PENDING": "Pending",
+      "VERIFIED": "Verified",
+      "EXPIRED": "Expired"
+    },
     "verify": "Check verification",
     "approve": "Approve",
     "deleteConfirm": "Remove this host from the allowlist? New runs against it will be blocked."
@@ -141,13 +165,17 @@
     "keyHint": "2–10 UPPERCASE letters or digits, e.g. QSNET",
     "name": "Project name",
     "description": "Description",
-    "tab": { "environments": "Environments & variables", "members": "Project members" },
+    "tab": {
+      "environments": "Environments & variables",
+      "members": "Project members"
+    },
     "archive": "Archive",
     "unarchive": "Unarchive",
     "archiveConfirm": "Archive this project? Its data is kept.",
     "addMember": "Add organization member",
     "adminsSeeAll": "Organization Owners and Admins always see every project.",
-    "noMembers": "No members yet"
+    "noMembers": "No members yet",
+    "noDescription": "No description"
   },
   "env": {
     "empty": "No environments yet. Add a Local environment with the address of the website running on your machine (e.g. http://localhost:3000).",
@@ -170,7 +198,8 @@
     "addSecretVar": "Add variable from secret",
     "credentials": "Test accounts by role",
     "noCredentials": "No test accounts yet",
-    "roleName": "Role"
+    "roleName": "Role",
+    "secretSuffix": "(secret)"
   },
   "overview": {
     "title": "Overview",
@@ -184,7 +213,26 @@
       "redis": "Queue (Redis)",
       "storage": "Storage (MinIO)",
       "migrations": "Migrations"
-    }
+    },
+    "greeting": "Hello, {{name}}",
+    "subtitle": "Start testing your first website in a few steps.",
+    "nextSteps": "Next steps",
+    "step1": "Create a project",
+    "step1Hint": "One project per website, with a short key like QSNET.",
+    "step2": "Add a Local environment",
+    "step2Hint": "Enter the address of the running website, e.g. http://localhost:3000.",
+    "step3": "Review testing switches",
+    "step3Hint": "Production is off by default, Local is on.",
+    "open": "Open",
+    "projects": "Projects",
+    "production": "Production testing",
+    "local": "Local testing",
+    "on": "On",
+    "off": "Off",
+    "done": "Done"
   },
-  "notFound": { "title": "Page not found", "back": "Back to overview" }
+  "notFound": {
+    "title": "Page not found",
+    "back": "Back to overview"
+  }
 }

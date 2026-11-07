@@ -7,6 +7,7 @@ import {
   PROJECT_ROLES,
   type ProjectRole,
 } from '@qah/validation';
+import { ArrowRight, FolderKanban, X } from 'lucide-react';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
@@ -93,26 +94,39 @@ export function ProjectsPage() {
         }}
       >
         {(d) => (
-          <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+          <ul className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
             {d.data.map((p) => (
-              <Card key={p.id}>
-                <CardHeader>
-                  <CardTitle className="flex items-center justify-between">
-                    <span>{p.name}</span>
-                    <code className="text-muted-foreground text-xs">{p.key}</code>
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  {p.description && (
-                    <p className="text-muted-foreground text-sm">{p.description}</p>
-                  )}
-                  <Button size="sm" variant="outline" asChild>
-                    <Link to={`/p/${p.key}/settings`}>{t('projects.settings')}</Link>
-                  </Button>
-                </CardContent>
-              </Card>
+              <li key={p.id}>
+                {/* Cả thẻ là một liên kết: vùng bấm lớn, hover/focus rõ */}
+                <Link
+                  to={`/p/${p.key}/settings`}
+                  className="group bg-card hover:border-foreground/30 focus-visible:ring-ring/50 flex h-full flex-col gap-3 rounded-xl border p-5 shadow-xs transition-[border-color,box-shadow] duration-150 hover:shadow-sm"
+                >
+                  <div className="flex items-start justify-between gap-3">
+                    <span className="bg-muted text-foreground flex size-10 shrink-0 items-center justify-center rounded-md">
+                      <FolderKanban className="size-5" aria-hidden />
+                    </span>
+                    <code className="bg-muted text-muted-foreground rounded px-1.5 py-0.5 text-xs font-medium">
+                      {p.key}
+                    </code>
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate font-semibold">{p.name}</p>
+                    <p className="text-muted-foreground line-clamp-2 text-sm">
+                      {p.description || t('projects.noDescription')}
+                    </p>
+                  </div>
+                  <span className="text-muted-foreground group-hover:text-foreground flex items-center gap-1 text-sm transition-colors duration-150">
+                    {t('projects.settings')}
+                    <ArrowRight
+                      className="size-4 transition-transform duration-150 group-hover:translate-x-0.5"
+                      aria-hidden
+                    />
+                  </span>
+                </Link>
+              </li>
             ))}
-          </div>
+          </ul>
         )}
       </QueryState>
     </div>
@@ -283,7 +297,7 @@ function CreateEnvironmentForm({ projectId }: { projectId: string }) {
       </CardHeader>
       <CardContent>
         <form
-          className="grid gap-3 md:grid-cols-4 md:items-end"
+          className="grid gap-3 md:grid-cols-4 md:items-start"
           onSubmit={form.handleSubmit(async (v) => {
             const r = await create({
               projectId,
@@ -470,7 +484,7 @@ function VariablesEditor({ env }: { env: Environment }) {
                     <option value="">{t('env.chooseSecret')}</option>
                     {secrets.data?.data.map((s) => (
                       <option key={s.id} value={s.id}>
-                        🔒 {s.name}
+                        {s.name} {t('env.secretSuffix')}
                       </option>
                     ))}
                   </NativeSelect>
@@ -489,7 +503,7 @@ function VariablesEditor({ env }: { env: Environment }) {
                     onClick={() => setDraft(rows.filter((_, j) => j !== i))}
                     aria-label={t('common.remove')}
                   >
-                    ✕
+                    <X aria-hidden />
                   </Button>
                 )}
               </div>
@@ -597,9 +611,7 @@ function CredentialsEditor({ env }: { env: Environment }) {
             autoComplete="new-password"
             {...form.register('password')}
           />
-          <Button type="submit" size="sm">
-            {t('common.add')}
-          </Button>
+          <Button type="submit">{t('common.add')}</Button>
           <div className="sm:col-span-4">
             <ErrorText error={res.error} />
             {(

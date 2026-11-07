@@ -3,20 +3,8 @@ import { createRoot } from 'react-dom/client';
 import { useTranslation } from 'react-i18next';
 import { Provider } from 'react-redux';
 import { createBrowserRouter, Link, RouterProvider } from 'react-router';
-import { Layout } from './app/Layout';
 import { store } from './app/store';
 import { LoginPage, RequireAuth, SetupPage } from './features/auth/pages';
-import { OverviewPage } from './features/overview/OverviewPage';
-import { ProjectSettingsPage, ProjectsPage } from './features/projects/pages';
-import {
-  AuditLogPage,
-  MembersPage,
-  OrganizationPage,
-  ProfilePage,
-  ServiceAccountsPage,
-  TargetsPage,
-  TestingSwitchesPage,
-} from './features/settings/pages';
 import './i18n';
 import './index.css';
 import { applyTheme, readTheme } from './lib/theme';
@@ -35,6 +23,10 @@ function NotFound() {
   );
 }
 
+// Trang sau đăng nhập tải theo route (docs/10 §7): màn login/setup nhẹ, không kéo theo sidebar và các trang cài đặt
+const settings = () => import('./features/settings/pages');
+const projects = () => import('./features/projects/pages');
+
 const router = createBrowserRouter([
   { path: '/setup', element: <SetupPage /> },
   { path: '/login', element: <LoginPage /> },
@@ -42,18 +34,47 @@ const router = createBrowserRouter([
     element: <RequireAuth />,
     children: [
       {
-        element: <Layout />,
+        lazy: async () => ({ Component: (await import('./app/Layout')).Layout }),
         children: [
-          { index: true, element: <OverviewPage /> },
-          { path: 'projects', element: <ProjectsPage /> },
-          { path: 'p/:key/settings', element: <ProjectSettingsPage /> },
-          { path: 'settings/profile', element: <ProfilePage /> },
-          { path: 'settings/organization', element: <OrganizationPage /> },
-          { path: 'settings/members', element: <MembersPage /> },
-          { path: 'settings/service-accounts', element: <ServiceAccountsPage /> },
-          { path: 'settings/targets', element: <TargetsPage /> },
-          { path: 'settings/testing-switches', element: <TestingSwitchesPage /> },
-          { path: 'settings/audit-log', element: <AuditLogPage /> },
+          {
+            index: true,
+            lazy: async () => ({
+              Component: (await import('./features/overview/OverviewPage')).OverviewPage,
+            }),
+          },
+          { path: 'projects', lazy: async () => ({ Component: (await projects()).ProjectsPage }) },
+          {
+            path: 'p/:key/settings',
+            lazy: async () => ({ Component: (await projects()).ProjectSettingsPage }),
+          },
+          {
+            path: 'settings/profile',
+            lazy: async () => ({ Component: (await settings()).ProfilePage }),
+          },
+          {
+            path: 'settings/organization',
+            lazy: async () => ({ Component: (await settings()).OrganizationPage }),
+          },
+          {
+            path: 'settings/members',
+            lazy: async () => ({ Component: (await settings()).MembersPage }),
+          },
+          {
+            path: 'settings/service-accounts',
+            lazy: async () => ({ Component: (await settings()).ServiceAccountsPage }),
+          },
+          {
+            path: 'settings/targets',
+            lazy: async () => ({ Component: (await settings()).TargetsPage }),
+          },
+          {
+            path: 'settings/testing-switches',
+            lazy: async () => ({ Component: (await settings()).TestingSwitchesPage }),
+          },
+          {
+            path: 'settings/audit-log',
+            lazy: async () => ({ Component: (await settings()).AuditLogPage }),
+          },
           { path: '*', element: <NotFound /> },
         ],
       },

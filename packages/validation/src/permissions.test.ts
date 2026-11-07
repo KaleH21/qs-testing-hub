@@ -27,3 +27,23 @@ describe('can', () => {
     expect(can(null, 'project.read')).toBe(false);
   });
 });
+
+describe('URL không bắt buộc (form gửi chuỗi rỗng)', () => {
+  it('chuỗi rỗng = không nhập; URL sai báo lỗi tiếng Việt', async () => {
+    const { createEnvironmentSchema } = await import('./schemas.js');
+    const ok = createEnvironmentSchema.parse({
+      name: 'Local',
+      kind: 'LOCAL',
+      webBaseUrl: 'http://localhost:3000',
+      apiBaseUrl: '',
+    });
+    expect(ok.apiBaseUrl).toBeUndefined();
+    const bad = createEnvironmentSchema.safeParse({
+      name: 'X',
+      kind: 'DEV',
+      webBaseUrl: 'ftp://x',
+    });
+    expect(bad.success).toBe(false);
+    expect(bad.error?.issues[0]?.message).toContain('URL không hợp lệ');
+  });
+});
