@@ -1,0 +1,21 @@
+{
+  "app": { "name": "QA Testing Hub" },
+  "nav": { "overview": "Overview" },
+  "theme": { "toLight": "Switch to light theme", "toDark": "Switch to dark theme" },
+  "language": { "label": "Language" },
+  "overview": {
+    "title": "Overview",
+    "systemStatus": "System status",
+    "checking": "Checking…",
+    "ready": "Ready",
+    "notReady": "Not ready",
+    "unreachable": "Cannot reach the API",
+    "check": {
+      "db": "Database",
+      "redis": "Queue (Redis)",
+      "storage": "Storage (MinIO)",
+      "migrations": "Migrations"
+    }
+  },
+  "notFound": { "title": "Page not found", "back": "Back to overview" }
+}

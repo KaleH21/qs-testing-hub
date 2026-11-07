@@ -1,0 +1,21 @@
+{
+  "app": { "name": "QA Testing Hub" },
+  "nav": { "overview": "Tổng quan" },
+  "theme": { "toLight": "Chuyển sang giao diện sáng", "toDark": "Chuyển sang giao diện tối" },
+  "language": { "label": "Ngôn ngữ" },
+  "overview": {
+    "title": "Tổng quan",
+    "systemStatus": "Tình trạng hệ thống",
+    "checking": "Đang kiểm tra…",
+    "ready": "Sẵn sàng",
+    "notReady": "Chưa sẵn sàng",
+    "unreachable": "Không kết nối được API",
+    "check": {
+      "db": "Cơ sở dữ liệu",
+      "redis": "Hàng đợi (Redis)",
+      "storage": "Lưu trữ (MinIO)",
+      "migrations": "Migration"
+    }
+  },
+  "notFound": { "title": "Không tìm thấy trang", "back": "Về trang tổng quan" }
+}

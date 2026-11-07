@@ -75,7 +75,8 @@ Worker **không** gọi trực tiếp ra ngoài: mọi traffic tới hệ thốn
 | Routing / state | React Router, Redux Toolkit + RTK Query | Theo spec 1.0 |
 | Form | React Hook Form + Zod | Zod schema dùng chung với API ở `packages/validation` |
 | i18n | i18next (`vi` mặc định, `en`) | |
-| Backend | NestJS 11 | |
+| Backend | NestJS 12 | Bản 12 đã phát hành khi khởi tạo repo (Phase 0) |
+| TypeScript | 6.0 | Chưa dùng TS 7 vì typescript-eslint chưa hỗ trợ |
 | ORM | Drizzle ORM + drizzle-kit migration | |
 | DB | PostgreSQL 17 | |
 | Queue | Redis 7 + BullMQ 5 | |

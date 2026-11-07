@@ -1,0 +1,7 @@
+legacy/
+docs/
+*.md
+pnpm-lock.yaml
+dist/
+coverage/
+apps/api/drizzle/meta/

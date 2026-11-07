@@ -1,0 +1,51 @@
+# Hạ tầng cho `pnpm dev` (docs/13 §1): app chạy trên máy, chỉ DB/queue/storage/mail trong Docker.
+# docker compose -f docker-compose.dev.yml up -d
+name: qahub-dev
+
+services:
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: qahub
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?thiếu POSTGRES_PASSWORD trong .env}
+      POSTGRES_DB: qahub
+    ports: ['127.0.0.1:5432:5432']
+    volumes: [pgdata:/var/lib/postgresql/data]
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U qahub']
+      interval: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    command:
+      [
+        'redis-server',
+        '--appendonly',
+        'yes',
+        '--appendfsync',
+        'everysec',
+        '--requirepass',
+        '${REDIS_PASSWORD:?thiếu REDIS_PASSWORD}',
+      ]
+    ports: ['127.0.0.1:6379:6379']
+    volumes: [redisdata:/data]
+
+  minio:
+    # shortcut: tag cần kiểm lại trước khi dùng (MinIO community đã đổi cách phát hành từ 2025, xem review)
+    image: minio/minio:RELEASE.2025-04-22T22-12-26Z
+    command: ['server', '/data', '--console-address', ':9001']
+    environment:
+      MINIO_ROOT_USER: ${S3_ACCESS_KEY:?thiếu S3_ACCESS_KEY}
+      MINIO_ROOT_PASSWORD: ${S3_SECRET_KEY:?thiếu S3_SECRET_KEY}
+    ports: ['127.0.0.1:9000:9000', '127.0.0.1:9001:9001']
+    volumes: [miniodata:/data]
+
+  mailpit:
+    image: axllent/mailpit:v1.27
+    ports: ['127.0.0.1:8025:8025', '127.0.0.1:1025:1025']
+
+volumes:
+  pgdata:
+  redisdata:
+  miniodata:
